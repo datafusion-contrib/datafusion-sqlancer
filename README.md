@@ -1,130 +1,107 @@
-[![Build Status](https://github.com/sqlancer/sqlancer/workflows/ci/badge.svg)](https://github.com/sqlancer/sqlancer/actions)
-[![Twitter](https://img.shields.io/twitter/follow/sqlancer_dbms?style=social)](https://twitter.com/sqlancer_dbms)
-# SQLancer
-
-
-![SQLancer](media/logo/png/sqlancer_logo_logo_pos_500.png)
-
-SQLancer (Synthesized Query Lancer) is a tool to automatically test Database Management Systems (DBMS) in order to find logic bugs in their implementation. We refer to logic bugs as those bugs that cause the DBMS to fetch an incorrect result set (e.g., by omitting a record).
+# DataFusion-SQLancer
+This is DataFusion's implementation of SQLancer on SQLancer's testing framework. See the original [README](https://github.com/sqlancer/sqlancer). 
+`datafusion-sqlancer` has found ~10 [bugs](https://github.com/apache/datafusion/issues?q=is%3Aissue+label%3Abug+sqlancer+) with only a small subset of SQL features implemented.
+# Overview
+SQLancer (Synthesized Query Lancer) is a tool to automatically test Database Management Systems (DBMS) in order to find logic bugs in their implementation. It's a black box fuzzer which performs SQL-level testings.
 
 SQLancer operates in the following two phases:
 
-1. Database generation: The goal of this phase is to create a populated database, and stress the DBMS to increase the probability of causing an inconsistent database state that could be detected subsequently. First, random tables are created. Then, randomly SQL statements are chosen to generate, modify, and delete data. Also other statements, such as those to create indexes as well as views and to set DBMS-specific options are sent to the DBMS.
-2. Testing: The goal of this phase is to detect the logic bugs based on the generated database. See Testing Approaches below. **News: we support Differential Query Plans (DQP) oracle now. See Testing Approaches below.**
+1. **Database and Query Generation:** Generating random database tables, and then generate complex queries using those tables
+2. **Testing:** The goal of this phase is to detect the logic bugs **automatically** based on the generated database, using several **test oracles**.
+	1. The weakest test oracle ensures that a query won't crash the `datafusion` engine. Since the query generator can construct chaotic queries, it's possible to detect crash bugs.
+	2. `SQLancer` comes with several stronger test oracles, here is the example of one of those:
+		```
+		Non-optimizing Reference Engine Construction (NoREC)
+		Randomly generated query(Q1): 
+		    select * from t1 where v1 > 0;
+		Mutated query(Q2): 
+		    select v1 > 0 from t1;
+		Consistency check:
+		    The result size of Q1 should be equal to the number of `True` in Q2's output
+		```
+Above showed consistency check generated Q1 (very likely to be optimized by predicate pushdown), and Q2(hard to be optimized), such test oracle focuses on the correctness of the optimizer. There are 5 similar test oracles available to be implemented, those carefully designed checks make this testing framework really powerful.
 
+More details about test oracles can be found in [SQLancer](https://github.com/sqlancer/sqlancer) page.
+
+`DataFusion-SQLancer` can be viewed as an **extendible** SQL-level fuzz testing framework:
+- It can generate random tables and queries that are supported by `DataFusion`.
+- It's convenient to implement more test oracles.
+	- One way is to come up with more `SQLancer` style oracles like making the above `Q2` into `select v1>= 0 from t1`, and check `Q2` 's result size is greater or equal to `Q1`'s
+	- Another way is to change `DataFusion`'s configurations: for example `Q1`'s `t1` is in-memory table, and `Q2`'s `t2` can use `t1` backed by a `Parquet` file with same content. Or let `Q1` execute in multiple thread/partition, and `Q2` will be executed in single thread/partition.
 # Getting Started
 
 Requirements:
 * Java 11 or above
 * [Maven](https://maven.apache.org/) (`sudo apt install maven` on Ubuntu)
-* The DBMS that you want to test (embedded DBMSs such as DuckDB, H2, and SQLite do not require a setup)
+
+Download `datafusion-sqlancer`
+
+```
+git clone https://github.com/datafusion-contrib/datafusion-sqllancer
+cd sqlancer
+```
+
+First start the `DataFusion` server
+
+```
+cd src/sqlancer/datafusion/server/datafusion_server
+cargo run --release --features "datafusion_stable"
+```
 
 The following commands clone SQLancer, create a JAR, and start SQLancer to test SQLite using Non-optimizing Reference Engine Construction (NoREC):
 
 ```
-git clone https://github.com/sqlancer/sqlancer
-cd sqlancer
 mvn package -DskipTests
 cd target
-java -jar sqlancer-*.jar --num-threads 4 sqlite3 --oracle NoREC
+java --add-opens=java.base/java.nio=org.apache.arrow.memory.core,ALL-UNNAMED -jar sqlancer-*.jar --random-seed 0 --num-threads 1 --max-generated-databases 1 --num-tries 10 --num-queries 500 datafusion
 ```
 
-If the execution prints progress information every five seconds, then the tool works as expected. Note that SQLancer might find bugs in SQLite. Before reporting these, be sure to check that they can still be reproduced when using the latest development version. The shortcut CTRL+C can be used to terminate SQLancer manually. If SQLancer does not find any bugs, it executes infinitely. The option `--num-tries` can be used to control after how many bugs SQLancer terminates. Alternatively, the option `--timeout-seconds` can be used to specify the maximum duration that SQLancer is allowed to run.
-
-If you launch SQLancer without parameters, available options and commands are displayed. Note that general options that are supported by all DBMS-testing implementations (e.g., `--num-threads`) need to precede the name of DBMS to be tested (e.g., `sqlite3`). Options that are supported only for specific DBMS (e.g., `--test-rtree` for SQLite3), or options for which each testing implementation provides different values (e.g. `--oracle NoREC`) need to go after the DBMS name.
-
-# Testing Approaches
-
-| Approach                                             | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
-|------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| Pivoted Query Synthesis (PQS)                        | PQS is the first technique that we designed and implemented. It randomly selects a row, called a pivot row, for which a query is generated that is guaranteed to fetch the row. If the row is not contained in the result set, a bug has been detected. It is fully described [here](https://arxiv.org/abs/2001.04174). PQS is the most powerful technique, but also requires more implementation effort than the other two techniques. It is currently unmaintained. |
-| Non-optimizing Reference Engine Construction (NoREC) | NoREC aims to find optimization bugs. It is described [here](https://www.manuelrigger.at/preprints/NoREC.pdf). It translates a query that is potentially optimized by the DBMS to one for which hardly any optimizations are applicable, and compares the two result sets. A mismatch between the result sets indicates a bug in the DBMS.                                                                                                                                                                                                        |
-| Ternary Logic Partitioning (TLP)                     | TLP partitions a query into three partitioning queries, whose results are composed and compare to the original query's result set. A mismatch in the result sets indicates a bug in the DBMS. In contrast to NoREC and PQS, it can detect bugs in advanced features such as aggregate functions.                                                                                                                                                                                                                                                  |
-| Cardinality Estimation Restriction Testing (CERT)    | CERT aims to find performance issues through unexpected estimated cardinalities, which represent the estimated number of returned rows. It is described [here](https://arxiv.org/abs/2306.00355). It derives a query to a more restrict query, whose estimated cardinality should be no more than that for the original query. An violation indicates a potential performance issue. CERT supports TiDB, CockroachDB, and MySQL. |
-| Differential Query Plans (DQP)                       | DQP aims to find logic bugs in database systems by checking whether the query plans of the same query perform consistently. It is described [here](https://bajinsheng.github.io/assets/pdf/dqp_sigmod24.pdf). DQP supports MySQL, MariaDB, and TiDB.|
-
-# Generation Approaches
-| Approach | Description |
-|----------|-------------|
-| Random Generation | Random generation is the default test case generation approach in SQLancer. First, random tables are generated. Then queries are randomly generated based on the schemas of the tables. |
-| Query Plan Guidance (QPG) | QPG is a test case generation method guided by query plan coverage. Given a database state, we mutate it after no new unique query plans have been observed by randomly-generated queries on the database state aiming to cover more unique query plans for exposing more logics of DBMSs. This approach is enabled by option `--qpg-enable` and now supports TLP and NoREC oracles for SQLite, CockroachDB, TiDB, and Materialize. |
-
-Please find the `.bib` entries [here](docs/PAPERS.md).
-
-# Supported DBMS
-
-Since SQL dialects differ widely, each DBMS to be tested requires a separate implementation.
-
-| DBMS                         | Status      | Expression Generation        | Description                                                                                                                                                                                     |
-| ---------------------------- | ----------- | ---------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| SQLite                       | Working     | Untyped                      | This implementation is currently affected by a significant performance regression that still needs to be investigated                                                                           |
-| MySQL                        | Working     | Untyped                      | Running this implementation likely uncovers additional, unreported bugs.                                                                                                                        |
-| PostgreSQL                   | Working     | Typed                        |                                                                                                                                                                                                 |
-| Citus (PostgreSQL Extension) | Working     | Typed                        | This implementation extends the PostgreSQL implementation of SQLancer, and was contributed by the Citus team.                                                                                   |
-| MariaDB                      | Preliminary | Untyped                      | The implementation of this DBMS is very preliminary, since we stopped extending it after all but one of our bug reports were addressed. Running it likely uncovers additional, unreported bugs. |
-| CockroachDB                  | Working     | Typed                        |                                                                                                                                                                                                 |
-| TiDB                         | Working     | Untyped                      |                                                                                                                                                                                                 |
-| DuckDB                       | Working     | Untyped, Generic             |                                                                                                                                                                                                 |
-| ClickHouse                   | Preliminary | Untyped, Generic             | Implementing the different table engines was not convenient, which is why only a very preliminary implementation exists.                                                                        |
-| TDEngine                     | Removed     | Untyped                      | We removed the TDEngine implementation since all but one of our bug reports were still unaddressed five months after we reported them.                                                          |
-| OceanBase                    | Working     | Untyped                      |                                                                                                                                                                                                 |
-| YugabyteDB                   | Working     | Typed (YSQL), Untyped (YCQL) | YSQL implementation based on Postgres code. YCQL implementation is primitive for now and uses Cassandra JDBC driver as a proxy interface.                                                       |
-| Databend                     | Working     | Typed                        |                                                                                                                                                                                                 |
-| QuestDB                      | Working     | Untyped, Generic             | The implementation of QuestDB is still WIP, current version covers very basic data types, operations and SQL keywords.                                                                          |
-| CnosDB                       | Working     | Typed                        | The implementation of CnosDB currently uses Restful API.                                                                                                                                        |
-| Materialize                  | Working     | Typed                        |                                                                                                                                                                                                 |
-| Apache Doris                 | Preliminary | Typed                        | This is a preliminary implementation, which only contains the common logic of Doris. We have found some errors through it, and hope to improve it in the future.                                |
-| Presto                       | Preliminary | Typed                        | This is a preliminary implementation, only basic types supported.                                                                                                                               |
-| DataFusion                   | Preliminary | Typed                        | Only basic SQL features are supported.                                                                                                                                                          |
+If the execution prints progress information every five seconds, then the tool works as expected. Execution logs can be found at `target/logs/datafusion/`
+# Testing Procedure
+For execution `java --add-opens=java.base/java.nio=org.apache.arrow.memory.core,ALL-UNNAMED -jar sqlancer-*.jar --random-seed 0 --num-threads 1 --num-tries 10 --num-queries 500 datafusion`
+1. It will perform 10(`--num-tries`) rounds of tests, at the beginning of each round, several random tables will be created.
+2. In each round, 100(`--num-queries`) random query will be generated, each query will be test against random test oracles. If some query failed or 100 queries finished, `SQLancer` will go to next round and generate new databases.
+## Testcase Generation
+Table generator will first pick random number of tables, also random number of column (in random type), and get corresponding SQL `CREATE` statements to populate tables.
+After, query generator know existing table schemas, it will generate a SQL query in a top-down way:
+1. Generate a statement like `SELECT [expr1] FROM [expr2] WHERE [expr3]`, and with some probability, add extra `ORDER BY/JOIN/...` clause.
+2. Generate expressions also in a top-down recursive way, for example in `WHERE` clause generator wants a boolean expression
+	```
+	generateExpression(BOOL)
+	-> exprA==exprB // Pick one expression which will generate boolean result
+	   -> generateExpression(numeric) for exprA
+	      -> ...
+	   -> generateExpression(numeric) for exprB
+	      -> ...
+	```
+Notes for query generation:
+- Expression generation is "typed", which means generator can specify what type to generate for a expression, but it can eventually generate a different type.
+	- One reason is the generation implementation is "best effort" for simplicity, so the generation process can fail and produce a query that can't be executed on datafusion (which is fine: just continue with the next query)
+	- Generator will ignore target type and pick another random type sometimes, to stress `DataFusion` engine to handle incorrect input argument types.(e.g. generate a numeric type in `WHERE` clause) 
+- Expression generation is just a simple random walk on allowed syntax tree, some traditional fuzzing techniques is hard to apply in this context:
+	- There is no feedback to guide the test case generation yet.
+	- Generation is grammar-based, it can't generate bad input like `SELECT SELECT 1;`. (It's possible to explore this strategy in the future)
+	- One way to let this approach attack more corner case is deliberately put more extreme values in the generation process:
+		- e.g., Populating empty tables, insert more `NULL`, `INF`, `NaN` into tables etc.
+# Code Architecture
+- `DataFusion` server is adapted from [datafusion-examples](https://github.com/apache/datafusion/blob/main/datafusion-examples/examples/flight/flight_sql_server.rs), now only supported single thread `SQLancer` execution.
+- `generateAndTestDatabase()` is a "driver" method to create random databases, generate queries, and finally test results.
+- `DataFusionExpressionGenerator.java` includes top-down expression generation logic.
+- `test/DataFusionNoRECOracle.java` contains the final result check for generated queries.
+# Supported Features
+- SQL Features: `SELECT`, `FROM`, `WHERE`
+- Operators: Numeric, Comparison, Logical
+- Scalar Functions: Numeric Scalar Functions
+- SQLancer Test Oracles: `NoREC`, `TLP-Where`
+# Bug Report
+If any bug is found by `SQLancer`, it will print a full reproducer to terminal output, and also writes to `logs/datafusion_custom_log/error_report.log`.
+1. Then, first verify the bug with latest `datafusion` main branch.
+2. If bug is confirmed, try to reduce the bug and report it to the `datafusion` community.
+3. If it's a false positive, feel free to open an issue here.
 
 
 
-# Using SQLancer
+# Contribution
+Upstream [SQLancer](https://github.com/sqlancer/sqlancer) repository have implementations of many DBMS, we plan to keep the development in `datafusion-contrib`, and sync with upstream once a while.
 
-## Logs
-
-SQLancer stores logs in the `target/logs` subdirectory. By default, the option `--log-each-select` is enabled, which results in every SQL statement that is sent to the DBMS being logged. The corresponding file names are postfixed with `-cur.log`. In addition, if SQLancer detects a logic bug, it creates a file with the extension `.log`, in which the statements to reproduce the bug are logged.
-
-## Reducing a Bug
-
-After finding a bug, it is useful to produce a minimal test case before reporting the bug, to save the DBMS developers' time and effort. For many test cases, [C-Reduce](https://embed.cs.utah.edu/creduce/) does a great job.
-
-## Found Bugs
-
-We would appreciate it if you mention SQLancer when you report bugs found by it. We would also be excited to know if you are using SQLancer to find bugs, or if you have extended it to test another DBMS (also if you do not plan to contribute it to this project). SQLancer has found over 400 bugs in widely-used DBMS, which are listed [here](https://www.manuelrigger.at/dbms-bugs/).
-
-
-# Community
-
-We have created a [Slack workspace](https://join.slack.com/t/sqlancer/shared_invite/zt-eozrcao4-ieG29w1LNaBDMF7OB_~ACg) to discuss SQLancer, and DBMS testing in general. SQLancer's official Twitter handle is [@sqlancer_dbms](https://twitter.com/sqlancer_dbms).
-
-# FAQ
-
-## I am running SQLancer on the latest version of a supported DBMS. Is it expected that SQLancer prints many AssertionErrors?
-
-In many cases, SQLancer does not support the latest version of a DBMS. You can check the [`.github/workflows/main.yml`](https://github.com/sqlancer/sqlancer/blob/master/.github/workflows/main.yml) file to determine which version we use in our CI tests, which corresponds to the currently supported version of that DBMS. SQLancer should print only an `AssertionError` and produce a corresponding log file, if it has identified a bug. To upgrade SQLancer to support a new DBMS version, either two options are advisable: (1) the generators can be updated to no longer generate certain patterns that might cause errors (e.g., which might be the case if a keyword or option is no longer supported) or (2) the newly-appearing errors can be added as [expected errors](https://github.com/sqlancer/sqlancer/blob/354d591cfcd37fa1de85ec77ec933d5d975e947a/src/sqlancer/common/query/ExpectedErrors.java) so that SQLancer ignores them when they appear (e.g., this is useful if some error-inducing patterns cannot easily be avoided).
-
-Another reason for many failures on a supported version could be that error messages are printed in a non-English locale (which would then be visible in the stack trace). In such a case, try setting the DBMS' locale to English (e.g., see the [PostgreSQL homepage](https://www.postgresql.org/docs/current/locale.html)).
-
-## When starting SQLancer, I get an error such as "database 'test' does not exist". How can I run SQLancer without this error?
-
-For some DBMSs, SQLancer expects that a database "test" exists, which it then uses as an initial database to connect to. If you have not yet created such a database, you can use a command such as `CREATE DATABASE test` to create this database (e.g., see the [PostgreSQL documentation](https://www.postgresql.org/docs/current/sql-createdatabase.html)).
-
-# Additional Documentation
-
-* [Contributing to SQLancer](CONTRIBUTING.md)
-* [Papers and .bib entries](docs/PAPERS.md)
-
-# Releases
-
-Official release are available on:
-* [GitHub](https://github.com/sqlancer/sqlancer/releases)
-* [Maven Central](https://search.maven.org/artifact/com.sqlancer/sqlancer)
-* [DockerHub](https://hub.docker.com/r/mrigger/sqlancer)
-
-# Additional Resources
-
-* A talk on Ternary Logic Partitioning (TLP) and SQLancer is available on [YouTube](https://www.youtube.com/watch?v=Np46NQ6lqP8).
-* An (older) Pivoted Query Synthesis (PQS) talk is available on [YouTube](https://www.youtube.com/watch?v=yzENTaWe7qg).
-* PingCAP has implemented PQS, NoREC, and TLP in a tool called [go-sqlancer](https://github.com/chaos-mesh/go-sqlancer).
-* More information on our DBMS testing efforts and the bugs we found is available [here](https://www.manuelrigger.at/dbms-bugs/).
+All kinds of contributions are welcome: feel free to open issues, discussions, or pull requests.
