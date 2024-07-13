@@ -2,6 +2,8 @@ package sqlancer.datafusion;
 
 import static sqlancer.datafusion.DataFusionUtil.dfAssert;
 
+import java.util.regex.Pattern;
+
 import sqlancer.common.query.ExpectedErrors;
 
 public final class DataFusionErrors {
@@ -31,12 +33,15 @@ public final class DataFusionErrors {
         /*
          * Known bugs
          */
-        errors.add("to type Int64"); // https://github.com/apache/datafusion/issues/11252
+        errors.add("to type Int64"); // https://github.com/apache/datafusion/issues/11249
         errors.add("bitwise"); // https://github.com/apache/datafusion/issues/11260
-        errors.add("NestedLoopJoinExec"); // https://github.com/apache/datafusion/issues/11269
+        errors.add(" Not all InterleaveExec children have a consistent hash partitioning."); // https://github.com/apache/datafusion/issues/11409
+        Pattern pattern = Pattern.compile("JOIN.*NULL", Pattern.CASE_INSENSITIVE);
+        errors.addRegex(pattern); // https://github.com/apache/datafusion/issues/11414
         /*
          * False positives
          */
+        errors.add("Cannot cast string"); // ifnull() is passed two non-compattable type and caused execution error
         errors.add("Physical plan does not support logical expression AggregateFunction"); // False positive: when aggr
         // is generated in where
         // clause

@@ -20,8 +20,15 @@ public class DataFusionQueryPartitioningWhereTester extends DataFusionQueryParti
     }
 
     /*
-     * Query Partitioning - Where q: SELECT [expr1] FROM [expr2] qp1: SELECT [expr1] FROM [expr2] WHERE [expr3] qp2:
-     * SELECT [expr1] FROM [expr2] WHERE NOT [expr3] qp3: SELECT [expr1] FROM [expr2] WHERE [expr3] IS NULL
+     * Query Partitioning - Where
+     *
+     * q: SELECT [expr1] FROM [expr2]
+     *
+     * qp1: SELECT [expr1] FROM [expr2] WHERE [expr3]
+     *
+     * qp2: SELECT [expr1] FROM [expr2] WHERE NOT [expr3]
+     *
+     * qp3: SELECT [expr1] FROM [expr2] WHERE [expr3] IS NULL
      *
      * Oracle check: q's result equals to union(qp1, qp2, qp3)
      */

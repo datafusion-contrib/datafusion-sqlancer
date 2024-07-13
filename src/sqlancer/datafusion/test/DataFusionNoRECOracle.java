@@ -27,8 +27,11 @@ public class DataFusionNoRECOracle extends NoRECBase<DataFusionGlobalState>
     }
 
     /*
-     * Non-Optimizing Reference Engine Construction q1: SELECT [expr1] FROM [expr2] WHERE [expr3] q2: SELECT [expr3]
-     * FROM [expr2]
+     * Non-Optimizing Reference Engine Construction
+     *
+     * q1: SELECT [expr1] FROM [expr2] WHERE [expr3]
+     *
+     * q2: SELECT [expr3] FROM [expr2]
      *
      * Oracle Check: q1's result size equals to `true` count in q2's result set
      */
@@ -43,14 +46,14 @@ public class DataFusionNoRECOracle extends NoRECBase<DataFusionGlobalState>
         // Q1: SELECT count(*) FROM [expr2] WHERE [expr3]
         DataFusionSelect q1 = new DataFusionSelect();
         q1.setFetchColumnsString("COUNT(*)");
-        q1.setFromList(randomSelect.getFromList());
+        q1.from = randomSelect.from;
         q1.setWhereClause(randomSelect.getWhereClause());
         // Q2: SELECT count(case when [expr3] then 1 else null end) FROM [expr2]
         DataFusionSelect q2 = new DataFusionSelect();
         String selectExpr = String.format("COUNT(CASE WHEN %S THEN 1 ELSE NULL END)",
                 DataFusionToStringVisitor.asString(randomSelect.getWhereClause()));
         q2.setFetchColumnsString(selectExpr);
-        q2.setFromList(randomSelect.getFromList());
+        q2.from = randomSelect.from;
         q2.setWhereClause(null);
 
         /*
