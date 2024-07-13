@@ -18,7 +18,8 @@ async-trait = "0.1.73"
 bytes = "1.4"
 chrono = { version = "0.4.34", default-features = false }
 dashmap = "5.5.0"
-datafusion_stable = { package = "datafusion", git = "https://github.com/apache/datafusion.git", rev = "e693ed7", optional = true }
+datafusion = { version = "40.0.0" }
+# datafusion = { git = "https://github.com/apache/datafusion.git", branch = "main"}
 datafusion_dev = { package = "datafusion", git = "https://github.com/apache/datafusion.git", branch = "main", optional = true }
 env_logger = "0.11"
 futures = "0.3"
@@ -42,8 +43,3 @@ mimalloc = { version = "0.1", default-features = false }
 [[bin]]
 name = "datafusion-server"
 path = "src/main.rs"
-
-[features]
-default = ["datafusion_stable_feature"]
-datafusion_stable_feature = ["datafusion_stable"]
-datafusion_dev_feature = ["datafusion_dev"]
