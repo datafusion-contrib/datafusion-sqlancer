@@ -45,10 +45,10 @@ First start the `DataFusion` server
 
 ```
 cd src/sqlancer/datafusion/server/datafusion_server
-cargo run --release --features "datafusion_stable"
+cargo run --release
 ```
 
-The following commands clone SQLancer, create a JAR, and start SQLancer to test SQLite using Non-optimizing Reference Engine Construction (NoREC):
+Then compile and start `SQLancer`
 
 ```
 mvn package -DskipTests
@@ -58,7 +58,7 @@ java --add-opens=java.base/java.nio=org.apache.arrow.memory.core,ALL-UNNAMED -ja
 
 If the execution prints progress information every five seconds, then the tool works as expected. Execution logs can be found at `target/logs/datafusion/`
 # Testing Procedure
-For execution `java --add-opens=java.base/java.nio=org.apache.arrow.memory.core,ALL-UNNAMED -jar sqlancer-*.jar --random-seed 0 --num-threads 1 --num-tries 10 --num-queries 500 datafusion`
+For execution `java --add-opens=java.base/java.nio=org.apache.arrow.memory.core,ALL-UNNAMED -jar sqlancer-*.jar --random-seed 0 --num-threads 1 --max-num-inserts 10 --num-tries 10 --num-queries 500 datafusion`
 1. It will perform 10(`--num-tries`) rounds of tests, at the beginning of each round, several random tables will be created.
 2. In each round, 100(`--num-queries`) random query will be generated, each query will be test against random test oracles. If some query failed or 100 queries finished, `SQLancer` will go to next round and generate new databases.
 ## Testcase Generation
