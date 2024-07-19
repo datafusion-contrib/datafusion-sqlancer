@@ -113,7 +113,9 @@ public class PostgresTableGenerator {
         generateInherits();
         generatePartitionBy();
         generateUsing();
-        PostgresCommon.generateWith(sb, globalState, errors);
+        if (!isPartitionedTable) {
+            PostgresCommon.generateWith(sb, globalState, errors);
+        }
         if (Randomly.getBoolean() && isTemporaryTable) {
             sb.append(" ON COMMIT ");
             sb.append(Randomly.fromOptions("PRESERVE ROWS", "DELETE ROWS", "DROP"));
@@ -205,7 +207,7 @@ public class PostgresTableGenerator {
     }
 
     private void generateInherits() {
-        if (Randomly.getBoolean() && !newSchema.getDatabaseTables().isEmpty()) {
+        if (Randomly.getBoolean() && !newSchema.getDatabaseTablesWithoutViews().isEmpty()) {
             sb.append(" INHERITS(");
             sb.append(newSchema.getDatabaseTablesRandomSubsetNotEmpty().stream().map(t -> t.getName())
                     .collect(Collectors.joining(", ")));

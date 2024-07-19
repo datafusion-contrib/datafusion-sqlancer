@@ -14,8 +14,7 @@ public class TestDataFusion {
         boolean datafusionIsAvailable = datafusionAvailable != null && datafusionAvailable.equalsIgnoreCase("true");
         assumeTrue(datafusionIsAvailable);
 
-        assertEquals(0, Main.executeMain("--random-seed", "0", "--num-threads", "1", // TODO(datafusion) update when
-                                                                                     // multithread is supported
-                "--timeout-seconds", TestConfig.SECONDS, "--num-queries", TestConfig.NUM_QUERIES, "datafusion"));
+        assertEquals(0, Main.executeMain("--random-seed", "0", "--num-threads", "1", "--timeout-seconds",
+                TestConfig.SECONDS, "--num-queries", TestConfig.NUM_QUERIES, "--max-num-inserts", "10", "datafusion"));
     }
 }
