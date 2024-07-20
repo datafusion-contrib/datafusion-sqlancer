@@ -30,14 +30,19 @@ public final class DataFusionErrors {
         errors.add("overflow");
         errors.add("Unsupported data type");
         errors.add("Divide by zero");
+        errors.add("Sort requires at least one column");
+        errors.add("The data type type Null has no natural order");
         /*
          * Known bugs
          */
         errors.add("to type Int64"); // https://github.com/apache/datafusion/issues/11249
         errors.add("bitwise"); // https://github.com/apache/datafusion/issues/11260
         errors.add(" Not all InterleaveExec children have a consistent hash partitioning."); // https://github.com/apache/datafusion/issues/11409
-        Pattern pattern = Pattern.compile("JOIN.*NULL", Pattern.CASE_INSENSITIVE);
-        errors.addRegex(pattern); // https://github.com/apache/datafusion/issues/11414
+        Pattern pattern = Pattern.compile("ORDER BY.*LOG", Pattern.CASE_INSENSITIVE);
+        errors.addRegex(pattern); // https://github.com/apache/datafusion/issues/11549
+        Pattern patternTriaFunc = Pattern.compile("ORDER BY.*\\b(ACOS|ACOSH|ASIN|ATANH)\\b", Pattern.CASE_INSENSITIVE);
+        errors.addRegex(patternTriaFunc); // https://github.com/apache/datafusion/issues/11552
+        errors.add("Sort expressions cannot be empty for streaming merge."); // https://github.com/apache/datafusion/issues/11561
         /*
          * False positives
          */

@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import sqlancer.ComparatorHelper;
+import sqlancer.Randomly;
 import sqlancer.datafusion.DataFusionErrors;
 import sqlancer.datafusion.DataFusionProvider.DataFusionGlobalState;
 import sqlancer.datafusion.DataFusionToStringVisitor;
@@ -38,6 +39,12 @@ public class DataFusionQueryPartitioningWhereTester extends DataFusionQueryParti
         super.check();
         DataFusionSelect randomSelect = select;
         randomSelect.setWhereClause(null);
+
+        // set 'order by'
+        boolean orderBy = Randomly.getBooleanWithRatherLowProbability();
+        if (orderBy) {
+            select.setOrderByClauses(gen.generateOrderBys());
+        }
 
         // Construct q
         String qString = DataFusionToStringVisitor.asString(randomSelect);
