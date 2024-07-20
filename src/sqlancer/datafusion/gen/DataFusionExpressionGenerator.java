@@ -15,6 +15,7 @@ import sqlancer.common.ast.BinaryOperatorNode.Operator;
 import sqlancer.common.ast.newast.ColumnReferenceNode;
 import sqlancer.common.ast.newast.NewBinaryOperatorNode;
 import sqlancer.common.ast.newast.NewFunctionNode;
+import sqlancer.common.ast.newast.NewOrderingTerm;
 import sqlancer.common.ast.newast.NewUnaryPostfixOperatorNode;
 import sqlancer.common.ast.newast.NewUnaryPrefixOperatorNode;
 import sqlancer.common.ast.newast.Node;
@@ -176,6 +177,19 @@ public final class DataFusionExpressionGenerator
         } else {
             return columns.stream().filter(c -> c.getType() == type).collect(Collectors.toList());
         }
+    }
+
+    @Override
+    public List<Node<DataFusionExpression>> generateOrderBys() {
+        List<Node<DataFusionExpression>> expr = super.generateOrderBys();
+        List<Node<DataFusionExpression>> newExpr = new ArrayList<>(expr.size());
+        for (Node<DataFusionExpression> curExpr : expr) {
+            if (Randomly.getBoolean()) {
+                curExpr = new NewOrderingTerm<>(curExpr, NewOrderingTerm.Ordering.getRandom());
+            }
+            newExpr.add(curExpr);
+        }
+        return newExpr;
     }
 
     @Override
