@@ -50,7 +50,7 @@ public class DataFusionNoRECOracle extends NoRECBase<DataFusionGlobalState>
         q1.setWhereClause(randomSelect.getWhereClause());
         // Q2: SELECT count(case when [expr3] then 1 else null end) FROM [expr2]
         DataFusionSelect q2 = new DataFusionSelect();
-        String selectExpr = String.format("COUNT(CASE WHEN %S THEN 1 ELSE NULL END)",
+        String selectExpr = String.format("COUNT(CASE WHEN %s THEN 1 ELSE NULL END)",
                 DataFusionToStringVisitor.asString(randomSelect.getWhereClause()));
         q2.setFetchColumnsString(selectExpr);
         q2.from = randomSelect.from;

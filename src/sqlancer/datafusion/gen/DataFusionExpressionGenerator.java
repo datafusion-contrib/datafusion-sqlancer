@@ -136,11 +136,22 @@ public final class DataFusionExpressionGenerator
 
     public Node<DataFusionExpression> generateFunctionExpression(DataFusionDataType type, int depth,
             DataFusionBaseExpr exprType) {
-        if (exprType.isVariadic || Randomly.getBooleanWithSmallProbability()) {
-            // TODO(datafusion) maybe add possible types. e.g. some function have signature variadic(INT/DOUBLE), then
-            // only randomly pick from INT and DOUBLE
-            int nArgs = Randomly.smallNumber(); // 0, 2, 4, ... smaller one is more likely
+        if (Randomly.getBooleanWithSmallProbability()) {
+            int nArgs = (int) Randomly.getNotCachedInteger(0, 5);
             return new NewFunctionNode<DataFusionExpression, DataFusionBaseExpr>(generateExpressions(nArgs), exprType);
+        }
+
+        if (exprType.isVariadic) {
+            int nArgs = (int) Randomly.getNotCachedInteger(0, 5);
+            dfAssert(exprType.argTypes.get(0) instanceof  ArgumentType.Fixed, "variadic function must specify possible argument types");
+            List<DataFusionDataType> possibleTypes = ((ArgumentType.Fixed) exprType.argTypes.get(0)).fixedType;
+
+            List<Node<DataFusionExpression>> argExprs = new ArrayList<>();
+            for (int i = 0; i < nArgs; i++) {
+                argExprs.add(generateExpression(Randomly.fromList(possibleTypes)));
+            }
+
+            return new NewFunctionNode<DataFusionExpression, DataFusionBaseExpr>(argExprs, exprType);
         }
 
         List<DataFusionDataType> funcArgTypeList = new ArrayList<>(); // types of current expression's input arguments

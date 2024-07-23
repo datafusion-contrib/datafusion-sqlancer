@@ -1,5 +1,7 @@
 package sqlancer.datafusion;
 
+import static java.lang.System.exit;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -27,7 +29,7 @@ public final class DataFusionUtil {
         for (String tableName : fromTableNames) {
             String query = String.format("select * from %s", tableName);
             try (Statement stat = state.getConnection().createStatement();
-                    ResultSet wholeTable = stat.executeQuery(query)) {
+                 ResultSet wholeTable = stat.executeQuery(query)) {
 
                 ResultSetMetaData metaData = wholeTable.getMetaData();
                 int columnCount = metaData.getColumnCount();
@@ -67,12 +69,12 @@ public final class DataFusionUtil {
     // During development, you might want to manually let this function call exit(1) to fail fast
     public static void dfAssert(boolean condition, String message) {
         if (!condition) {
-            // // Development mode assertion failure
-            // String methodName = Thread.currentThread().getStackTrace()[2]// .getMethodName();
-            // System.err.println("DataFusion assertion failed in function '" + methodName + "': " + message);
-            // exit(1);
+            // Development mode assertion failure
+            String methodName = Thread.currentThread().getStackTrace()[2].getMethodName();
+            System.err.println("DataFusion assertion failed in function '" + methodName + "': " + message);
+            exit(1);
 
-            throw new AssertionError(message);
+//            throw new AssertionError(message);
         }
     }
 
@@ -147,25 +149,25 @@ public final class DataFusionUtil {
             // Determine which log file to use based on the LogType
             String logLineHeader = "";
             switch (logType) {
-            case ERROR:
-                try {
-                    logFileWriter = new FileWriter(errorLogFile, true);
-                } catch (IOException e) {
-                    dfAssert(false, "Failed to create FileWriter for errorLogFIle");
-                }
-                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-                String formattedDateTime = LocalDateTime.now().format(formatter);
-                logLineHeader = "Run@" + formattedDateTime + " (" + dfID + ")\n";
-                break;
-            case DML:
-                logFileWriter = state.getLogger().getCurrentFileWriter();
-                logLineHeader = "/*DML*/";
-                break;
-            case SELECT:
-                logFileWriter = state.getLogger().getCurrentFileWriter();
-                break;
-            default:
-                dfAssert(false, "All branch should be covered");
+                case ERROR:
+                    try {
+                        logFileWriter = new FileWriter(errorLogFile, true);
+                    } catch (IOException e) {
+                        dfAssert(false, "Failed to create FileWriter for errorLogFIle");
+                    }
+                    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+                    String formattedDateTime = LocalDateTime.now().format(formatter);
+                    logLineHeader = "Run@" + formattedDateTime + " (" + dfID + ")\n";
+                    break;
+                case DML:
+                    logFileWriter = state.getLogger().getCurrentFileWriter();
+                    logLineHeader = "/*DML*/";
+                    break;
+                case SELECT:
+                    logFileWriter = state.getLogger().getCurrentFileWriter();
+                    break;
+                default:
+                    dfAssert(false, "All branch should be covered");
             }
 
             // Append content to the appropriate log file
