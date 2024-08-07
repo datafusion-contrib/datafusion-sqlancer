@@ -97,6 +97,8 @@ public class DataFusionConstant implements Node<DataFusionExpression> {
     }
 
     public static class DataFusionStringConstant extends DataFusionConstant {
+        private final String value;
+
         public static String cleanString(String input) {
             StringBuilder sb = new StringBuilder();
             for (int i = 0; i < input.length(); i++) {
@@ -116,8 +118,6 @@ public class DataFusionConstant implements Node<DataFusionExpression> {
             }
             return sb.toString();
         }
-
-        private final String value;
 
         public DataFusionStringConstant(String value) {
             // cleanup invalid Utf8

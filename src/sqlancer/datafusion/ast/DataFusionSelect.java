@@ -19,8 +19,8 @@ import sqlancer.datafusion.DataFusionSchema.DataFusionTable;
 import sqlancer.datafusion.gen.DataFusionExpressionGenerator;
 
 public class DataFusionSelect extends SelectBase<Node<DataFusionExpression>> implements Node<DataFusionExpression> {
-    public boolean all = false; // SELECT ALL
-    public boolean distinct = false; // SELECT DISTINCT
+    public boolean all; // SELECT ALL
+    public boolean distinct; // SELECT DISTINCT
     public Optional<String> fetchColumnsString = Optional.empty(); // When available, override `fetchColumns` in base
     // class's `Node` representation (for display)
 

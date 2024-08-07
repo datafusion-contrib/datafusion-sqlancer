@@ -3,6 +3,7 @@ package sqlancer.datafusion.test;
 import static sqlancer.datafusion.DataFusionUtil.DataFusionLogger.DataFusionLogType.ERROR;
 
 import java.sql.SQLException;
+import java.util.Arrays;
 import java.util.List;
 
 import sqlancer.ComparatorHelper;
@@ -71,7 +72,7 @@ public class DataFusionQueryPartitioningAggrTester extends DataFusionQueryPartit
         qp3String = DataFusionToStringVisitor.asString(randomSelect);
 
         // q - min(q1, q2, q3)
-        String diffQuery = aggrOP.formatDiffQuery(qString, qp1String, qp2String, qp3String);
+        String diffQuery = aggrOP.formatDiffQuery(Arrays.asList(qString, qp1String, qp2String, qp3String));
 
         List<String> diffQueryResultSet = null;
         try {
@@ -119,7 +120,10 @@ public class DataFusionQueryPartitioningAggrTester extends DataFusionQueryPartit
     private interface DataFusionTLPAggregate {
         // e.g. q - min(q1, q2, q3), in the form of single SQL query
         // Oracle will check diff query equals to 0
-        String formatDiffQuery(String q, String q1, String q2, String q3);
+
+        // Accepts a list of strings with expected order: q, q1, q2, q3
+        // to make linter happy :)
+        String formatDiffQuery(List<String> queries);
 
         String errorReportDescription();
     }
@@ -127,13 +131,16 @@ public class DataFusionQueryPartitioningAggrTester extends DataFusionQueryPartit
     private enum DFAggrOp implements DataFusionTLPAggregate {
         MIN {
             @Override
-            public String formatDiffQuery(String q, String q1, String q2, String q3) {
-                String diffQuery = "SELECT " + "(" + q + ") - " + "(" + "    SELECT MIN(value) " + "    FROM ("
+            public String formatDiffQuery(List<String> queries) {
+                String q = queries.get(0);
+                String q1 = queries.get(1);
+                String q2 = queries.get(2);
+                String q3 = queries.get(3);
+
+                return "SELECT " + "(" + q + ") - " + "(" + "    SELECT MIN(value) " + "    FROM ("
                         + "        SELECT (" + q1 + ") AS value " + "        UNION ALL " + "        SELECT (" + q2
                         + ") " + "        UNION ALL " + "        SELECT (" + q3 + ") " + "    ) AS sub"
                         + ") AS result_difference;";
-
-                return diffQuery;
             }
 
             @Override
@@ -143,13 +150,16 @@ public class DataFusionQueryPartitioningAggrTester extends DataFusionQueryPartit
         },
         MAX {
             @Override
-            public String formatDiffQuery(String q, String q1, String q2, String q3) {
-                String diffQuery = "SELECT " + "(" + q + ") - " + "(" + "    SELECT MAX(value) " + "    FROM ("
+            public String formatDiffQuery(List<String> queries) {
+                String q = queries.get(0);
+                String q1 = queries.get(1);
+                String q2 = queries.get(2);
+                String q3 = queries.get(3);
+
+                return "SELECT " + "(" + q + ") - " + "(" + "    SELECT MAX(value) " + "    FROM ("
                         + "        SELECT (" + q1 + ") AS value " + "        UNION ALL " + "        SELECT (" + q2
                         + ") " + "        UNION ALL " + "        SELECT (" + q3 + ") " + "    ) AS sub"
                         + ") AS result_difference;";
-
-                return diffQuery;
             }
 
             @Override
@@ -159,13 +169,16 @@ public class DataFusionQueryPartitioningAggrTester extends DataFusionQueryPartit
         },
         COUNT {
             @Override
-            public String formatDiffQuery(String q, String q1, String q2, String q3) {
-                String diffQuery = "SELECT " + "(" + q + ") - " + "(" + "    SELECT SUM(value) " + "    FROM ("
+            public String formatDiffQuery(List<String> queries) {
+                String q = queries.get(0);
+                String q1 = queries.get(1);
+                String q2 = queries.get(2);
+                String q3 = queries.get(3);
+
+                return "SELECT " + "(" + q + ") - " + "(" + "    SELECT SUM(value) " + "    FROM ("
                         + "        SELECT (" + q1 + ") AS value " + "        UNION ALL " + "        SELECT (" + q2
                         + ") " + "        UNION ALL " + "        SELECT (" + q3 + ") " + "    ) AS sub"
                         + ") AS result_difference;";
-
-                return diffQuery;
             }
 
             @Override
@@ -175,13 +188,16 @@ public class DataFusionQueryPartitioningAggrTester extends DataFusionQueryPartit
         },
         SUM {
             @Override
-            public String formatDiffQuery(String q, String q1, String q2, String q3) {
-                String diffQuery = "SELECT " + "(" + q + ") - " + "(" + "    SELECT SUM(value) " + "    FROM ("
+            public String formatDiffQuery(List<String> queries) {
+                String q = queries.get(0);
+                String q1 = queries.get(1);
+                String q2 = queries.get(2);
+                String q3 = queries.get(3);
+
+                return "SELECT " + "(" + q + ") - " + "(" + "    SELECT SUM(value) " + "    FROM ("
                         + "        SELECT (" + q1 + ") AS value " + "        UNION ALL " + "        SELECT (" + q2
                         + ") " + "        UNION ALL " + "        SELECT (" + q3 + ") " + "    ) AS sub"
                         + ") AS result_difference;";
-
-                return diffQuery;
             }
 
             @Override

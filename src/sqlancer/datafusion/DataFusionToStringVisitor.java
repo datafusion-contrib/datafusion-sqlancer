@@ -55,26 +55,26 @@ public class DataFusionToStringVisitor extends NewToStringVisitor<DataFusionExpr
         visit(from.tableList.get(0));
         for (int i = 0; i < from.joinConditionList.size(); i++) {
             switch (from.joinTypeList.get(i)) {
-            case INNER:
-                sb.append(Randomly.fromOptions(" JOIN ", " INNER JOIN "));
-                break;
-            case LEFT:
-                sb.append(Randomly.fromOptions(" LEFT JOIN ", " LEFT OUTER JOIN "));
-                break;
-            case RIGHT:
-                sb.append(Randomly.fromOptions(" RIGHT JOIN ", " RIGHT OUTER JOIN "));
-                break;
-            case FULL:
-                sb.append(Randomly.fromOptions(" FULL JOIN ", " FULL OUTER JOIN "));
-                break;
-            case CROSS:
-                sb.append(" CROSS JOIN ");
-                break;
-            case NATURAL:
-                sb.append(" NATURAL JOIN ");
-                break;
-            default:
-                dfAssert(false, "Unreachable");
+                case INNER:
+                    sb.append(Randomly.fromOptions(" JOIN ", " INNER JOIN "));
+                    break;
+                case LEFT:
+                    sb.append(Randomly.fromOptions(" LEFT JOIN ", " LEFT OUTER JOIN "));
+                    break;
+                case RIGHT:
+                    sb.append(Randomly.fromOptions(" RIGHT JOIN ", " RIGHT OUTER JOIN "));
+                    break;
+                case FULL:
+                    sb.append(Randomly.fromOptions(" FULL JOIN ", " FULL OUTER JOIN "));
+                    break;
+                case CROSS:
+                    sb.append(" CROSS JOIN ");
+                    break;
+                case NATURAL:
+                    sb.append(" NATURAL JOIN ");
+                    break;
+                default:
+                    dfAssert(false, "Unreachable");
             }
 
             visit(from.tableList.get(i + 1)); // ti
@@ -95,7 +95,7 @@ public class DataFusionToStringVisitor extends NewToStringVisitor<DataFusionExpr
 
     private void visit(DataFusionSelect select) {
         sb.append("SELECT ");
-        if (select.all && (!select.distinct)) {
+        if (select.all && !select.distinct) {
             sb.append("ALL ");
         }
         if (select.distinct) {
