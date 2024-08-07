@@ -53,7 +53,8 @@ public class DataFusionSchema extends AbstractSchema<DataFusionGlobalState, Data
     private static List<String> getTableNames(SQLConnection con) throws SQLException {
         List<String> tableNames = new ArrayList<>();
         try (Statement s = con.createStatement()) {
-            try (ResultSet rs = s.executeQuery("select table_name " + "from information_schema.tables " + "where table_schema='public'" + "order by table_name; ")) {
+            try (ResultSet rs = s.executeQuery("select table_name " + "from information_schema.tables "
+                    + "where table_schema='public'" + "order by table_name; ")) {
                 while (rs.next()) {
                     tableNames.add(rs.getString(1));
                 }
@@ -65,13 +66,15 @@ public class DataFusionSchema extends AbstractSchema<DataFusionGlobalState, Data
     private static List<DataFusionColumn> getTableColumns(SQLConnection con, String tableName) throws SQLException {
         List<DataFusionColumn> columns = new ArrayList<>();
         try (Statement s = con.createStatement()) {
-            try (ResultSet rs = s.executeQuery(String.format("select * from information_schema.columns where table_name = '%s';", tableName))) {
+            try (ResultSet rs = s.executeQuery(
+                    String.format("select * from information_schema.columns where table_name = '%s';", tableName))) {
                 while (rs.next()) {
                     String columnName = rs.getString("column_name");
                     String dataType = rs.getString("data_type");
                     boolean isNullable = rs.getString("is_nullable").contentEquals("YES");
 
-                    DataFusionColumn c = new DataFusionColumn(columnName, DataFusionDataType.parseFromDataFusionCatalog(dataType), isNullable);
+                    DataFusionColumn c = new DataFusionColumn(columnName,
+                            DataFusionDataType.parseFromDataFusionCatalog(dataType), isNullable);
                     columns.add(c);
                 }
             }
@@ -99,22 +102,26 @@ public class DataFusionSchema extends AbstractSchema<DataFusionGlobalState, Data
             return dt;
         }
 
+        public boolean isNumeric() {
+            return (this == BIGINT) || (this == DOUBLE);
+        }
+
         // How to parse type in DataFusion's catalog to `DataFusionDataType`
         // As displayed in:
         // create table t1(v1 int, v2 bigint);
         // select table_name, column_name, data_type from information_schema.columns;
         public static DataFusionDataType parseFromDataFusionCatalog(String typeString) {
             switch (typeString) {
-                case "Int64":
-                    return DataFusionDataType.BIGINT;
-                case "Float64":
-                    return DataFusionDataType.DOUBLE;
-                case "Boolean":
-                    return DataFusionDataType.BOOLEAN;
-                case "Utf8":
-                    return DataFusionDataType.STRING;
-                default:
-                    dfAssert(false, "Unreachable. All branches should be eovered");
+            case "Int64":
+                return DataFusionDataType.BIGINT;
+            case "Float64":
+                return DataFusionDataType.DOUBLE;
+            case "Boolean":
+                return DataFusionDataType.BOOLEAN;
+            case "Utf8":
+                return DataFusionDataType.STRING;
+            default:
+                dfAssert(false, "Unreachable. All branches should be eovered");
             }
 
             dfAssert(false, "Unreachable. All branches should be eovered");
@@ -127,29 +134,31 @@ public class DataFusionSchema extends AbstractSchema<DataFusionGlobalState, Data
                 return DataFusionConstant.createNullConstant();
             }
             switch (this) {
-                case BIGINT:
-                    long randInt = Randomly.getBoolean() ? state.getRandomly().getInteger() : state.getRandomly().getInteger(-5, 5);
-                    return DataFusionConstant.createIntConstant(randInt);
-                case BOOLEAN:
-                    return new DataFusionConstant.DataFusionBooleanConstant(Randomly.getBoolean());
-                case DOUBLE:
+            case BIGINT:
+                long randInt = Randomly.getBoolean() ? state.getRandomly().getInteger()
+                        : state.getRandomly().getInteger(-5, 5);
+                return DataFusionConstant.createIntConstant(randInt);
+            case BOOLEAN:
+                return new DataFusionConstant.DataFusionBooleanConstant(Randomly.getBoolean());
+            case DOUBLE:
+                if (Randomly.getBoolean()) {
                     if (Randomly.getBoolean()) {
-                        if (Randomly.getBoolean()) {
-                            Double randomDouble = state.getRandomly().getDouble(); // [0.0, 1.0);
-                            Double scaledDouble = (randomDouble - 0.5) * 2 * Double.MAX_VALUE;
-                            return new DataFusionConstant.DataFusionDoubleConstant(scaledDouble);
-                        }
-                        String doubleStr = Randomly.fromOptions("'NaN'::Double", "'+Inf'::Double", "'-Inf'::Double", "-0.0", "+0.0");
-                        return new DataFusionConstant.DataFusionDoubleConstant(doubleStr);
+                        Double randomDouble = state.getRandomly().getDouble(); // [0.0, 1.0);
+                        Double scaledDouble = (randomDouble - 0.5) * 2 * Double.MAX_VALUE;
+                        return new DataFusionConstant.DataFusionDoubleConstant(scaledDouble);
                     }
+                    String doubleStr = Randomly.fromOptions("'NaN'::Double", "'+Inf'::Double", "'-Inf'::Double", "-0.0",
+                            "+0.0");
+                    return new DataFusionConstant.DataFusionDoubleConstant(doubleStr);
+                }
 
-                    return new DataFusionConstant.DataFusionDoubleConstant(state.getRandomly().getDouble());
-                case NULL:
-                    return DataFusionConstant.createNullConstant();
-                case STRING:
-                    return new DataFusionConstant.DataFusionStringConstant(state.getRandomly().getString());
-                default:
-                    dfAssert(false, "Unreachable. All branches should be eovered");
+                return new DataFusionConstant.DataFusionDoubleConstant(state.getRandomly().getDouble());
+            case NULL:
+                return DataFusionConstant.createNullConstant();
+            case STRING:
+                return new DataFusionConstant.DataFusionStringConstant(state.getRandomly().getString());
+            default:
+                dfAssert(false, "Unreachable. All branches should be eovered");
             }
 
             dfAssert(false, "Unreachable. All branches should be eovered");
@@ -172,7 +181,8 @@ public class DataFusionSchema extends AbstractSchema<DataFusionGlobalState, Data
 
     }
 
-    public static class DataFusionTable extends AbstractRelationalTable<DataFusionColumn, TableIndex, DataFusionGlobalState> {
+    public static class DataFusionTable
+            extends AbstractRelationalTable<DataFusionColumn, TableIndex, DataFusionGlobalState> {
 
         public DataFusionTable(String tableName, List<DataFusionColumn> columns, boolean isView) {
             super(tableName, columns, Collections.emptyList(), isView);

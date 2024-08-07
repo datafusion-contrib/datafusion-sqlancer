@@ -29,7 +29,7 @@ public final class DataFusionUtil {
         for (String tableName : fromTableNames) {
             String query = String.format("select * from %s", tableName);
             try (Statement stat = state.getConnection().createStatement();
-                 ResultSet wholeTable = stat.executeQuery(query)) {
+                    ResultSet wholeTable = stat.executeQuery(query)) {
 
                 ResultSetMetaData metaData = wholeTable.getMetaData();
                 int columnCount = metaData.getColumnCount();
@@ -74,7 +74,7 @@ public final class DataFusionUtil {
             System.err.println("DataFusion assertion failed in function '" + methodName + "': " + message);
             exit(1);
 
-//            throw new AssertionError(message);
+            // throw new AssertionError(message);
         }
     }
 
@@ -149,25 +149,25 @@ public final class DataFusionUtil {
             // Determine which log file to use based on the LogType
             String logLineHeader = "";
             switch (logType) {
-                case ERROR:
-                    try {
-                        logFileWriter = new FileWriter(errorLogFile, true);
-                    } catch (IOException e) {
-                        dfAssert(false, "Failed to create FileWriter for errorLogFIle");
-                    }
-                    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-                    String formattedDateTime = LocalDateTime.now().format(formatter);
-                    logLineHeader = "Run@" + formattedDateTime + " (" + dfID + ")\n";
-                    break;
-                case DML:
-                    logFileWriter = state.getLogger().getCurrentFileWriter();
-                    logLineHeader = "/*DML*/";
-                    break;
-                case SELECT:
-                    logFileWriter = state.getLogger().getCurrentFileWriter();
-                    break;
-                default:
-                    dfAssert(false, "All branch should be covered");
+            case ERROR:
+                try {
+                    logFileWriter = new FileWriter(errorLogFile, true);
+                } catch (IOException e) {
+                    dfAssert(false, "Failed to create FileWriter for errorLogFIle");
+                }
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+                String formattedDateTime = LocalDateTime.now().format(formatter);
+                logLineHeader = "Run@" + formattedDateTime + " (" + dfID + ")\n";
+                break;
+            case DML:
+                logFileWriter = state.getLogger().getCurrentFileWriter();
+                logLineHeader = "/*DML*/";
+                break;
+            case SELECT:
+                logFileWriter = state.getLogger().getCurrentFileWriter();
+                break;
+            default:
+                dfAssert(false, "All branch should be covered");
             }
 
             // Append content to the appropriate log file
@@ -188,5 +188,26 @@ public final class DataFusionUtil {
         public enum DataFusionLogType {
             ERROR, DML, SELECT
         }
+    }
+
+    // Only used in TLP-Having
+    public static String cleanResultSetString(String value) {
+        if (value == null) {
+            return value;
+        }
+
+        switch (value) {
+        case "-0.0":
+            return "0.0";
+        case "-0":
+            return "0";
+        default:
+        }
+
+        if (value.getBytes().length > 7) {
+            return new String(value.getBytes(), 0, 7);
+        }
+
+        return value;
     }
 }

@@ -15,6 +15,9 @@ public class DataFusionQueryPartitioningBase
         extends TernaryLogicPartitioningOracleBase<Node<DataFusionExpression>, DataFusionGlobalState>
         implements TestOracle<DataFusionGlobalState> {
     DataFusionGlobalState state;
+    // Generate expression given available columns
+    // This includes all columns to generate WHERE
+    // see DataFusionSelect's comment for other expression generators
     DataFusionExpressionGenerator gen;
     DataFusionSelect select;
 
@@ -26,7 +29,7 @@ public class DataFusionQueryPartitioningBase
     @Override
     public void check() throws SQLException {
         select = DataFusionSelect.getRandomSelect(state);
-        gen = select.exprGen;
+        gen = select.exprGenAll;
         initializeTernaryPredicateVariants();
     }
 

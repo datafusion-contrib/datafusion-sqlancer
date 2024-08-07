@@ -68,6 +68,10 @@ public abstract class NewToStringVisitor<E> {
         visit(ordering.getExpr());
         sb.append(" ");
         sb.append(ordering.getOrdering());
+        if (ordering.getOrderingNullsOptional().isPresent()) {
+            sb.append(" ");
+            sb.append(ordering.getOrderingNullsOptional().get());
+        }
     }
 
     public void visit(NewCaseOperatorNode<E> op) {

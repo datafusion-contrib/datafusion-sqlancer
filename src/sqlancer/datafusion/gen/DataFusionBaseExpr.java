@@ -29,7 +29,7 @@ public class DataFusionBaseExpr implements Operator {
 
     // Primary constructor
     DataFusionBaseExpr(String name, int nArgs, DataFusionBaseExprCategory exprCategory,
-                       List<DataFusionDataType> possibleReturnTypes, List<ArgumentType> argTypes, boolean isVariadic) {
+            List<DataFusionDataType> possibleReturnTypes, List<ArgumentType> argTypes, boolean isVariadic) {
         this.name = name;
         this.nArgs = nArgs;
         this.exprType = exprCategory;
@@ -40,7 +40,7 @@ public class DataFusionBaseExpr implements Operator {
 
     // Overloaded constructor assuming 'isVariadic' is false
     DataFusionBaseExpr(String name, int nArgs, DataFusionBaseExprCategory exprCategory,
-                       List<DataFusionDataType> possibleReturnTypes, List<ArgumentType> argTypes) {
+            List<DataFusionDataType> possibleReturnTypes, List<ArgumentType> argTypes) {
         this(name, nArgs, exprCategory, possibleReturnTypes, argTypes, false);
     }
 
@@ -54,23 +54,20 @@ public class DataFusionBaseExpr implements Operator {
     public static DataFusionBaseExpr createCommonStringOperatorTwoArgs(String name) {
         return new DataFusionBaseExpr(name, 2, DataFusionBaseExprCategory.BINARY,
                 Arrays.asList(DataFusionDataType.STRING),
-                Arrays.asList(
-                        new ArgumentType.Fixed(new ArrayList<>(Arrays.asList(DataFusionDataType.STRING))),
+                Arrays.asList(new ArgumentType.Fixed(new ArrayList<>(Arrays.asList(DataFusionDataType.STRING))),
                         new ArgumentType.SameAsFirstArgType()));
     }
 
-    public static DataFusionBaseExpr createCommonStringFuncOneStringArg(String name, List<DataFusionDataType> returnTypeList) {
-        return new DataFusionBaseExpr(name, 1, DataFusionBaseExprCategory.FUNC,
-                returnTypeList,
-                Arrays.asList(new ArgumentType.Fixed(
-                        new ArrayList<>(Arrays.asList(DataFusionDataType.STRING)))));
+    public static DataFusionBaseExpr createCommonStringFuncOneStringArg(String name,
+            List<DataFusionDataType> returnTypeList) {
+        return new DataFusionBaseExpr(name, 1, DataFusionBaseExprCategory.FUNC, returnTypeList,
+                Arrays.asList(new ArgumentType.Fixed(new ArrayList<>(Arrays.asList(DataFusionDataType.STRING)))));
     }
 
-    public static DataFusionBaseExpr createCommonStringFuncTwoStringArg(String name, List<DataFusionDataType> returnTypeList) {
-        return new DataFusionBaseExpr(name, 2, DataFusionBaseExprCategory.FUNC,
-                returnTypeList,
-                Arrays.asList(
-                        new ArgumentType.Fixed(new ArrayList<>(Arrays.asList(DataFusionDataType.STRING))),
+    public static DataFusionBaseExpr createCommonStringFuncTwoStringArg(String name,
+            List<DataFusionDataType> returnTypeList) {
+        return new DataFusionBaseExpr(name, 2, DataFusionBaseExprCategory.FUNC, returnTypeList,
+                Arrays.asList(new ArgumentType.Fixed(new ArrayList<>(Arrays.asList(DataFusionDataType.STRING))),
                         new ArgumentType.SameAsFirstArgType()));
     }
 
@@ -138,16 +135,20 @@ public class DataFusionBaseExpr implements Operator {
         IS_DISTINCT_FROM, // 0 IS DISTINCT FROM NULL
         IS_NOT_DISTINCT_FROM, // NULL IS NOT DISTINCT FROM NULL
 
+        // Pattern matching expressions
+        LIKE, // 'foo' like 'fo'
+        NOT_LIKE, ILIKE, NOT_ILIKE,
+
         // Regular expression match operators
-        REGEX_MATCH,                  // 'datafusion' ~ '^datafusion(-cli)*'
+        REGEX_MATCH, // 'datafusion' ~ '^datafusion(-cli)*'
         REGEX_CASE_INSENSITIVE_MATCH, // 'datafusion' ~* '^DATAFUSION(-cli)*'
-        NOT_REGEX_MATCH,              // 'datafusion' !~ '^DATAFUSION(-cli)*'
+        NOT_REGEX_MATCH, // 'datafusion' !~ '^DATAFUSION(-cli)*'
         NOT_REGEX_CASE_INSENSITIVE_MATCH, // 'datafusion' !~* '^DATAFUSION(-cli)+'
 
         // Like pattern match operators
-        LIKE_MATCH,                   // 'datafusion' ~~ 'dat_f%n'
-        CASE_INSENSITIVE_LIKE_MATCH,  // 'datafusion' ~~* 'Dat_F%n'
-        NOT_LIKE_MATCH,               // 'datafusion' !~~ 'Dat_F%n'
+        LIKE_MATCH, // 'datafusion' ~~ 'dat_f%n'
+        CASE_INSENSITIVE_LIKE_MATCH, // 'datafusion' ~~* 'Dat_F%n'
+        NOT_LIKE_MATCH, // 'datafusion' !~~ 'Dat_F%n'
         NOT_CASE_INSENSITIVE_LIKE_MATCH, // 'datafusion' !~~* 'Dat%F_n'
 
         // Logical Operators
@@ -162,9 +163,9 @@ public class DataFusionBaseExpr implements Operator {
         BITWISE_SHIFT_LEFT, // 5 << 3
 
         // Other operators
-        STRING_CONCATENATION,          // 'Hello, ' || 'DataFusion!'
-        // ARRAY_CONTAINS,                // make_array(1,2,3) @> make_array(1,3)
-        // ARRAY_IS_CONTAINED_BY,          // make_array(1,3) <@ make_array(1,2,3)
+        STRING_CONCATENATION, // 'Hello, ' || 'DataFusion!'
+        // ARRAY_CONTAINS, // make_array(1,2,3) @> make_array(1,3)
+        // ARRAY_IS_CONTAINED_BY, // make_array(1,3) <@ make_array(1,2,3)
 
         // Unary Prefix Operators
         NOT, // NOT true
@@ -226,6 +227,8 @@ public class DataFusionBaseExpr implements Operator {
         FUNC_IFNULL, // ifnull(NULL, 'default value')
 
         // String Functions
+        // TODO(datafusion) lpad('foo', 1e100) takes forever, we can let server stop a query if its been running for too
+        // long
         // String Functions - return numeric
         FUNC_ASCII, // ascii('string')
         FUNC_LENGTH, // length('string')
@@ -256,12 +259,12 @@ public class DataFusionBaseExpr implements Operator {
         FUNC_CONCAT, // concat('string1', 'string2', ...)
         FUNC_CONCAT_WS, // concat_ws('separator', 'string1', 'string2', ...)
 
-        FUNC_LPAD, // lpad('string', length)
-        FUNC_LPAD2, // lpad('string', length, 'pad_string')
-        FUNC_RPAD, // rpad('string', length)
-        FUNC_RPAD2, // rpad('string', length, 'pad_string')
+        // FUNC_LPAD, // lpad('string', length)
+        // FUNC_LPAD2, // lpad('string', length, 'pad_string')
+        // FUNC_RPAD, // rpad('string', length)
+        // FUNC_RPAD2, // rpad('string', length, 'pad_string')
 
-        FUNC_REPEAT, // repeat('string', n)
+        // FUNC_REPEAT, // repeat('string', n)
         FUNC_REPLACE, // replace('string', 'search', 'replacement')
         FUNC_REVERSE, // reverse('string')
         FUNC_SPLIT_PART, // split_part('foo-bar-baz', '-', 3)
@@ -273,7 +276,7 @@ public class DataFusionBaseExpr implements Operator {
         FUNC_TRANSLATE, // translate('hello-world', '-', '--')
 
         FUNC_TO_HEX, // to_hex(number)
-        FUNC_UUID, // uuid()
+        // FUNC_UUID, // uuid()
         FUNC_SUBSTR_INDEX, // substr_index('string', 'delimiter', count)
         FUNC_SUBSTRING_INDEX, // substring_index('string', 'delimiter', count)
 
@@ -281,7 +284,14 @@ public class DataFusionBaseExpr implements Operator {
         FUNC_ENDS_WITH, // ends_with('string', 'suffix')
         FUNC_STARTS_WITH, // starts_with('string', 'prefix')
 
-//        FUNC_OVERLAY, // overlay('string' placing 'substr' from position [for count])
+        // FUNC_OVERLAY, // overlay('string' placing 'substr' from position [for count])
+        // TODO(datafusion) generate valid flags for regexp functions
+        FUNC_REGEXP_LIKE, // regexp_like('aBc', '(b|d)')
+        FUNC_REGEXP_LIKE2, // regexp_like('aBc', '(b|d)', 'i')
+        FUNC_REGEXP_MATCH, // regexp_match('aBc', '(b|d)')
+        FUNC_REGEXP_MATCH2, // regexp_match('aBc', '(b|d)', 'i')
+        FUNC_REGEXP_REPLACE, // regexp_replace('aBc', '(b|d)')
+        FUNC_REGEXP_REPLACE2, // regexp_replace('aBc', '(b|d)', 'Ab\\1a', 'i')
 
         // Time and Date Functions
 

@@ -13,6 +13,8 @@ import sqlancer.common.oracle.TestOracle;
 import sqlancer.datafusion.DataFusionOptions.DataFusionOracleFactory;
 import sqlancer.datafusion.DataFusionProvider.DataFusionGlobalState;
 import sqlancer.datafusion.test.DataFusionNoRECOracle;
+import sqlancer.datafusion.test.DataFusionQueryPartitioningAggrTester;
+import sqlancer.datafusion.test.DataFusionQueryPartitioningHavingTester;
 import sqlancer.datafusion.test.DataFusionQueryPartitioningWhereTester;
 
 @Parameters(commandDescription = "DataFusion")
@@ -22,7 +24,9 @@ public class DataFusionOptions implements DBMSSpecificOptions<DataFusionOracleFa
 
     @Override
     public List<DataFusionOracleFactory> getTestOracleFactory() {
-        return Arrays.asList(DataFusionOracleFactory.NOREC, DataFusionOracleFactory.QUERY_PARTITIONING_WHERE);
+        return Arrays.asList(DataFusionOracleFactory.NOREC, DataFusionOracleFactory.QUERY_PARTITIONING_WHERE
+        /* DataFusionOracleFactory.QUERY_PARTITIONING_AGGREGATE */
+        /* , DataFusionOracleFactory.QUERY_PARTITIONING_HAVING */);
     }
 
     public enum DataFusionOracleFactory implements OracleFactory<DataFusionGlobalState> {
@@ -36,6 +40,18 @@ public class DataFusionOptions implements DBMSSpecificOptions<DataFusionOracleFa
             @Override
             public TestOracle<DataFusionGlobalState> create(DataFusionGlobalState globalState) throws SQLException {
                 return new DataFusionQueryPartitioningWhereTester(globalState);
+            }
+        },
+        QUERY_PARTITIONING_HAVING {
+            @Override
+            public TestOracle<DataFusionGlobalState> create(DataFusionGlobalState globalState) throws SQLException {
+                return new DataFusionQueryPartitioningHavingTester(globalState);
+            }
+        },
+        QUERY_PARTITIONING_AGGREGATE {
+            @Override
+            public TestOracle<DataFusionGlobalState> create(DataFusionGlobalState globalState) throws SQLException {
+                return new DataFusionQueryPartitioningAggrTester(globalState);
             }
         }
     }

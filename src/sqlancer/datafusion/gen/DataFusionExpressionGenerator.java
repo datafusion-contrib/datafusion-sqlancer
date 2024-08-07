@@ -25,15 +25,18 @@ import sqlancer.datafusion.DataFusionSchema.DataFusionColumn;
 import sqlancer.datafusion.DataFusionSchema.DataFusionDataType;
 import sqlancer.datafusion.ast.DataFusionExpression;
 import sqlancer.datafusion.gen.DataFusionBaseExpr.ArgumentType;
+import sqlancer.datafusion.gen.DataFusionBaseExpr.DataFusionBaseExprCategory;
 import sqlancer.datafusion.gen.DataFusionBaseExpr.DataFusionBaseExprType;
 
 public final class DataFusionExpressionGenerator
         extends TypedExpressionGenerator<Node<DataFusionExpression>, DataFusionColumn, DataFusionDataType> {
 
     private final DataFusionGlobalState globalState;
+    public boolean supportAggregate; // control if generate aggr exprs, related logic is in `generateExpression()`
 
     public DataFusionExpressionGenerator(DataFusionGlobalState globalState) {
         this.globalState = globalState;
+        supportAggregate = false;
     }
 
     @Override
@@ -51,6 +54,24 @@ public final class DataFusionExpressionGenerator
         return true;
     }
 
+    // If target expr type is numeric, when `supportAggregate`, make it more likely to generate aggregate functions
+    private boolean filterBaseExpr(DataFusionBaseExpr expr, DataFusionDataType type) {
+        // keep only aggregates
+        if (supportAggregate && type.isNumeric() && Randomly.getBoolean()) {
+            return expr.exprType == DataFusionBaseExpr.DataFusionBaseExprCategory.AGGREGATE;
+        }
+
+        // keep all avaialble expressions (aggr + non-aggr)
+        if (supportAggregate || Randomly.getBooleanWithRatherLowProbability()) {
+            return true;
+        }
+
+        // keep all non-aggregate exprs
+        return expr.exprType != DataFusionBaseExprCategory.AGGREGATE;
+    }
+
+    // By default all possible non-aggregate expressions
+    // To generate aggregate functions: set this.supportAggregate to `true`, generate exprs, and reset.
     @Override
     protected Node<DataFusionExpression> generateExpression(DataFusionDataType type, int depth) {
         if (depth >= globalState.getOptions().getMaxExpressionDepth() || Randomly.getBoolean()) {
@@ -61,12 +82,8 @@ public final class DataFusionExpressionGenerator
             return generateLeafNode(expectedType);
         }
 
-        // nested aggregate is not allowed, so occasionally apply it
-        Boolean includeAggr = Randomly.getBooleanWithSmallProbability();
         List<DataFusionBaseExpr> possibleBaseExprs = getExprsWithReturnType(Optional.of(type)).stream()
-                // Conditinally apply filter if `includeAggr` set to false
-                .filter(expr -> includeAggr || expr.exprType != DataFusionBaseExpr.DataFusionBaseExprCategory.AGGREGATE)
-                .collect(Collectors.toList());
+                .filter(expr -> filterBaseExpr(expr, type)).collect(Collectors.toList());
 
         if (possibleBaseExprs.isEmpty()) {
             dfAssert(type == DataFusionDataType.NULL, "should able to generate expression with type " + type);
@@ -143,7 +160,8 @@ public final class DataFusionExpressionGenerator
 
         if (exprType.isVariadic) {
             int nArgs = (int) Randomly.getNotCachedInteger(0, 5);
-            dfAssert(exprType.argTypes.get(0) instanceof  ArgumentType.Fixed, "variadic function must specify possible argument types");
+            dfAssert(exprType.argTypes.get(0) instanceof ArgumentType.Fixed,
+                    "variadic function must specify possible argument types");
             List<DataFusionDataType> possibleTypes = ((ArgumentType.Fixed) exprType.argTypes.get(0)).fixedType;
 
             List<Node<DataFusionExpression>> argExprs = new ArrayList<>();
@@ -194,9 +212,17 @@ public final class DataFusionExpressionGenerator
     public List<Node<DataFusionExpression>> generateOrderBys() {
         List<Node<DataFusionExpression>> expr = super.generateOrderBys();
         List<Node<DataFusionExpression>> newExpr = new ArrayList<>(expr.size());
+
         for (Node<DataFusionExpression> curExpr : expr) {
             if (Randomly.getBoolean()) {
-                curExpr = new NewOrderingTerm<>(curExpr, NewOrderingTerm.Ordering.getRandom());
+                if (Randomly.getBoolean()) {
+                    // e.g. [curExpr] ASC
+                    curExpr = new NewOrderingTerm<>(curExpr, NewOrderingTerm.Ordering.getRandom());
+                } else {
+                    // e.g. [curExpr] ASC NULLS LAST
+                    curExpr = new NewOrderingTerm<>(curExpr, NewOrderingTerm.Ordering.getRandom(),
+                            NewOrderingTerm.OrderingNulls.getRandom());
+                }
             }
             newExpr.add(curExpr);
         }
@@ -233,6 +259,29 @@ public final class DataFusionExpressionGenerator
     @Override
     public Node<DataFusionExpression> isNull(Node<DataFusionExpression> expr) {
         return new NewUnaryPostfixOperatorNode<>(expr, createExpr(DataFusionBaseExprType.IS_NULL));
+    }
+
+    // TODO(datafusion) refactor: make single generate aware of group by and aggr columns, and it can directly generate
+    // having clause
+    // Try best to generate a valid having clause
+    //
+    // Suppose query "... group by a, b ..."
+    // and all available columns are "a, b, c, d"
+    // then a valid having clause can have expr of {a, b}, and expr of aggregation of {c, d}
+    // e.g. "having a=b and avg(c) > avg(d)"
+    //
+    // `groupbyGen` can generate expression only with group by cols
+    // `aggrGen` can generate expression only with aggr cols
+    public static Node<DataFusionExpression> generateHavingClause(DataFusionExpressionGenerator groupbyGen,
+            DataFusionExpressionGenerator aggrGen) {
+        if (Randomly.getBoolean()) {
+            return groupbyGen.generatePredicate();
+        } else {
+            aggrGen.supportAggregate = true;
+            Node<DataFusionExpression> expr = aggrGen.generatePredicate();
+            aggrGen.supportAggregate = false;
+            return expr;
+        }
     }
 
     public static class DataFusionCastOperation extends NewUnaryPostfixOperatorNode<DataFusionExpression> {

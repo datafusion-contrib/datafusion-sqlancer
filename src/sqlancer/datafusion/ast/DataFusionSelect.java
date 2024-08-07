@@ -19,13 +19,27 @@ import sqlancer.datafusion.DataFusionSchema.DataFusionTable;
 import sqlancer.datafusion.gen.DataFusionExpressionGenerator;
 
 public class DataFusionSelect extends SelectBase<Node<DataFusionExpression>> implements Node<DataFusionExpression> {
+    public boolean all = false; // SELECT ALL
+    public boolean distinct = false; // SELECT DISTINCT
     public Optional<String> fetchColumnsString = Optional.empty(); // When available, override `fetchColumns` in base
     // class's `Node` representation (for display)
 
     // `from` is used to represent from table list and join clause
     // `fromList` and `joinList` in base class should always be empty
     public DataFusionFrom from;
-    public DataFusionExpressionGenerator exprGen;
+    // e.g. let's say all colummns are {c1, c2, c3, c4, c5}
+    // First randomly pick a subset say {c2, c1, c3, c4}
+    // `exprGenAll` can generate random expr using above 4 columns
+    //
+    // Next, randomly take two non-overlapping subset from all columns used by `exprGenAll`
+    // exprGenGroupBy: {c1} (randomly generate group by exprs using c1 only)
+    // exprGenAggregate: {c3, c4}
+    //
+    // Finally, use all `Gen`s to generate different clauses in a query (`exprGenAll` in where clause, `exprGenGroupBy`
+    // in group by clause, etc.)
+    public DataFusionExpressionGenerator exprGenAll;
+    public DataFusionExpressionGenerator exprGenGroupBy;
+    public DataFusionExpressionGenerator exprGenAggregate;
 
     public enum JoinType {
         INNER, LEFT, RIGHT, FULL, CROSS, NATURAL
@@ -145,6 +159,9 @@ public class DataFusionSelect extends SelectBase<Node<DataFusionExpression>> imp
     // - [expr_aggr_cols] SUM(t3.v1 + t2.v1)
     public static DataFusionSelect getRandomSelect(DataFusionGlobalState state) {
         DataFusionSelect randomSelect = new DataFusionSelect();
+        if (Randomly.getBooleanWithRatherLowProbability()) {
+            randomSelect.all = true;
+        }
 
         /* Setup FROM clause */
         DataFusionSchema schema = state.getSchema(); // schema of all tables
@@ -156,14 +173,24 @@ public class DataFusionSelect extends SelectBase<Node<DataFusionExpression>> imp
         }
         DataFusionFrom randomFrom = DataFusionFrom.generateFromClause(state, randomTables);
 
+        /* Setup expression generators (to generate different clauses) */
+        List<DataFusionColumn> randomColumnsAll = DataFusionTable.getRandomColumns(randomTables);
+        // 0 <= splitPoint1 <= splitPoint2 < randomColumnsALl.size()
+        int splitPoint1 = state.getRandomly().getInteger(0, randomColumnsAll.size());
+        int splitPoint2 = state.getRandomly().getInteger(splitPoint1, randomColumnsAll.size());
+
+        randomSelect.exprGenAll = new DataFusionExpressionGenerator(state).setColumns(randomColumnsAll);
+        randomSelect.exprGenGroupBy = new DataFusionExpressionGenerator(state)
+                .setColumns(randomColumnsAll.subList(0, splitPoint1));
+        randomSelect.exprGenAggregate = new DataFusionExpressionGenerator(state)
+                .setColumns(randomColumnsAll.subList(splitPoint1, splitPoint2));
+
         /* Setup WHERE clause */
-        List<DataFusionColumn> randomColumns = DataFusionTable.getRandomColumns(randomTables);
-        randomSelect.exprGen = new DataFusionExpressionGenerator(state).setColumns(randomColumns);
-        Node<DataFusionExpression> whereExpr = randomSelect.exprGen
+        Node<DataFusionExpression> whereExpr = randomSelect.exprGenAll
                 .generateExpression(DataFusionSchema.DataFusionDataType.BOOLEAN);
 
         /* Constructing result */
-        List<Node<DataFusionExpression>> randomColumnNodes = randomColumns.stream()
+        List<Node<DataFusionExpression>> randomColumnNodes = randomColumnsAll.stream()
                 .map((c) -> new ColumnReferenceNode<DataFusionExpression, DataFusionColumn>(c))
                 .collect(Collectors.toList());
 
