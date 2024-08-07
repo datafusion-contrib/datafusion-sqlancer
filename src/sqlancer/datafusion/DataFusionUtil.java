@@ -1,5 +1,7 @@
 package sqlancer.datafusion;
 
+import static java.lang.System.exit;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -67,12 +69,12 @@ public final class DataFusionUtil {
     // During development, you might want to manually let this function call exit(1) to fail fast
     public static void dfAssert(boolean condition, String message) {
         if (!condition) {
-            // // Development mode assertion failure
-            // String methodName = Thread.currentThread().getStackTrace()[2]// .getMethodName();
-            // System.err.println("DataFusion assertion failed in function '" + methodName + "': " + message);
-            // exit(1);
+            // Development mode assertion failure
+            String methodName = Thread.currentThread().getStackTrace()[2].getMethodName();
+            System.err.println("DataFusion assertion failed in function '" + methodName + "': " + message);
+            exit(1);
 
-            throw new AssertionError(message);
+            // throw new AssertionError(message);
         }
     }
 
@@ -186,5 +188,26 @@ public final class DataFusionUtil {
         public enum DataFusionLogType {
             ERROR, DML, SELECT
         }
+    }
+
+    // Only used in TLP-Having
+    public static String cleanResultSetString(String value) {
+        if (value == null) {
+            return value;
+        }
+
+        switch (value) {
+        case "-0.0":
+            return "0.0";
+        case "-0":
+            return "0";
+        default:
+        }
+
+        if (value.getBytes().length > 7) {
+            return new String(value.getBytes(), 0, 7);
+        }
+
+        return value;
     }
 }

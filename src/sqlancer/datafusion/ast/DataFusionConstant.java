@@ -96,4 +96,42 @@ public class DataFusionConstant implements Node<DataFusionExpression> {
 
     }
 
+    public static class DataFusionStringConstant extends DataFusionConstant {
+        private final String value;
+
+        public static String cleanString(String input) {
+            StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < input.length(); i++) {
+                char c = input.charAt(i);
+                // Check if the character is a high surrogate
+                if (Character.isHighSurrogate(c)) {
+                    if (i + 1 < input.length() && Character.isLowSurrogate(input.charAt(i + 1))) {
+                        // It's a valid surrogate pair, add both to the string
+                        sb.append(c);
+                        sb.append(input.charAt(i + 1));
+                        i++; // Skip the next character as it's part of the surrogate pair
+                    }
+                } else if (!Character.isLowSurrogate(c) && !Character.isSurrogate(c)) {
+                    // Add only if it's not a low surrogate or any standalone surrogate
+                    sb.append(c);
+                }
+            }
+            return sb.toString();
+        }
+
+        public DataFusionStringConstant(String value) {
+            // cleanup invalid Utf8
+            this.value = cleanString(value.replace("'", "''"));
+        }
+
+        public String getValue() {
+            return value;
+        }
+
+        @Override
+        public String toString() {
+            return "'" + value + "'";
+        }
+
+    }
 }

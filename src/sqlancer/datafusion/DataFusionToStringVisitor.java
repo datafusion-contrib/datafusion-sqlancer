@@ -95,6 +95,12 @@ public class DataFusionToStringVisitor extends NewToStringVisitor<DataFusionExpr
 
     private void visit(DataFusionSelect select) {
         sb.append("SELECT ");
+        if (select.all && !select.distinct) {
+            sb.append("ALL ");
+        }
+        if (select.distinct) {
+            sb.append("DISTINCT ");
+        }
         if (select.fetchColumnsString.isPresent()) {
             sb.append(select.fetchColumnsString.get());
         } else {

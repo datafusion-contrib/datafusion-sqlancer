@@ -85,14 +85,14 @@ public class DataFusionSchema extends AbstractSchema<DataFusionGlobalState, Data
 
     /*
      * When adding a new type: 1. Update all methods inside this enum 2. Update all `DataFusionBaseExpr`'s signature, if
-     * it can support new type (in `DataFusionBaseExprFactory.java`
+     * it can support new type (in `DataFusionBaseExprFactory.java`)
      *
      * Types are 'SQL DataType' in DataFusion's documentation
      * https://datafusion.apache.org/user-guide/sql/data_types.html
      */
     public enum DataFusionDataType {
 
-        BIGINT, DOUBLE, BOOLEAN, NULL;
+        STRING, BIGINT, DOUBLE, BOOLEAN, NULL;
 
         public static DataFusionDataType getRandomWithoutNull() {
             DataFusionDataType dt;
@@ -100,6 +100,10 @@ public class DataFusionSchema extends AbstractSchema<DataFusionGlobalState, Data
                 dt = Randomly.fromOptions(values());
             } while (dt == DataFusionDataType.NULL);
             return dt;
+        }
+
+        public boolean isNumeric() {
+            return this == BIGINT || this == DOUBLE;
         }
 
         // How to parse type in DataFusion's catalog to `DataFusionDataType`
@@ -114,6 +118,8 @@ public class DataFusionSchema extends AbstractSchema<DataFusionGlobalState, Data
                 return DataFusionDataType.DOUBLE;
             case "Boolean":
                 return DataFusionDataType.BOOLEAN;
+            case "Utf8":
+                return DataFusionDataType.STRING;
             default:
                 dfAssert(false, "Unreachable. All branches should be eovered");
             }
@@ -129,7 +135,9 @@ public class DataFusionSchema extends AbstractSchema<DataFusionGlobalState, Data
             }
             switch (this) {
             case BIGINT:
-                return DataFusionConstant.createIntConstant(state.getRandomly().getInteger());
+                long randInt = Randomly.getBoolean() ? state.getRandomly().getInteger()
+                        : state.getRandomly().getInteger(-5, 5);
+                return DataFusionConstant.createIntConstant(randInt);
             case BOOLEAN:
                 return new DataFusionConstant.DataFusionBooleanConstant(Randomly.getBoolean());
             case DOUBLE:
@@ -147,6 +155,8 @@ public class DataFusionSchema extends AbstractSchema<DataFusionGlobalState, Data
                 return new DataFusionConstant.DataFusionDoubleConstant(state.getRandomly().getDouble());
             case NULL:
                 return DataFusionConstant.createNullConstant();
+            case STRING:
+                return new DataFusionConstant.DataFusionStringConstant(state.getRandomly().getString());
             default:
                 dfAssert(false, "Unreachable. All branches should be eovered");
             }

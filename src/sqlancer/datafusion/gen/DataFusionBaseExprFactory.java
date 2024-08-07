@@ -1,9 +1,6 @@
 package sqlancer.datafusion.gen;
 
 import static sqlancer.datafusion.DataFusionUtil.dfAssert;
-import static sqlancer.datafusion.gen.DataFusionBaseExpr.createCommonNumericAggrFuncSingleArg;
-import static sqlancer.datafusion.gen.DataFusionBaseExpr.createCommonNumericFuncSingleArg;
-import static sqlancer.datafusion.gen.DataFusionBaseExpr.createCommonNumericFuncTwoArgs;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -27,13 +24,15 @@ public final class DataFusionBaseExprFactory {
         case IS_NULL:
             return new DataFusionBaseExpr("IS NULL", 1, DataFusionBaseExprCategory.UNARY_POSTFIX,
                     Arrays.asList(DataFusionDataType.BOOLEAN),
-                    Arrays.asList(new ArgumentType.Fixed(new ArrayList<>(Arrays.asList(DataFusionDataType.BOOLEAN,
-                            DataFusionDataType.DOUBLE, DataFusionDataType.BIGINT, DataFusionDataType.NULL)))));
+                    Arrays.asList(new ArgumentType.Fixed(
+                            new ArrayList<>(Arrays.asList(DataFusionDataType.STRING, DataFusionDataType.BOOLEAN,
+                                    DataFusionDataType.DOUBLE, DataFusionDataType.BIGINT, DataFusionDataType.NULL)))));
         case IS_NOT_NULL:
             return new DataFusionBaseExpr("IS NOT NULL", 1, DataFusionBaseExprCategory.UNARY_POSTFIX,
                     Arrays.asList(DataFusionDataType.BOOLEAN),
-                    Arrays.asList(new ArgumentType.Fixed(new ArrayList<>(Arrays.asList(DataFusionDataType.BOOLEAN,
-                            DataFusionDataType.DOUBLE, DataFusionDataType.BIGINT, DataFusionDataType.NULL)))));
+                    Arrays.asList(new ArgumentType.Fixed(
+                            new ArrayList<>(Arrays.asList(DataFusionDataType.STRING, DataFusionDataType.BOOLEAN,
+                                    DataFusionDataType.DOUBLE, DataFusionDataType.BIGINT, DataFusionDataType.NULL)))));
         case BITWISE_AND:
             return new DataFusionBaseExpr("&", 2, DataFusionBaseExprCategory.BINARY,
                     Arrays.asList(DataFusionDataType.BIGINT, DataFusionDataType.DOUBLE),
@@ -114,65 +113,93 @@ public final class DataFusionBaseExprFactory {
             return new DataFusionBaseExpr("=", 2, DataFusionBaseExprCategory.BINARY,
                     Arrays.asList(DataFusionDataType.BOOLEAN),
                     Arrays.asList(
-                            new ArgumentType.Fixed(new ArrayList<>(Arrays.asList(DataFusionDataType.BIGINT,
-                                    DataFusionDataType.DOUBLE, DataFusionDataType.BOOLEAN))),
+                            new ArgumentType.Fixed(new ArrayList<>(Arrays.asList(DataFusionDataType.STRING,
+                                    DataFusionDataType.BIGINT, DataFusionDataType.DOUBLE, DataFusionDataType.BOOLEAN))),
                             new ArgumentType.SameAsFirstArgType()));
         case EQUAL2:
             return new DataFusionBaseExpr("==", 2, DataFusionBaseExprCategory.BINARY,
                     Arrays.asList(DataFusionDataType.BOOLEAN),
                     Arrays.asList(
-                            new ArgumentType.Fixed(new ArrayList<>(Arrays.asList(DataFusionDataType.BIGINT,
-                                    DataFusionDataType.DOUBLE, DataFusionDataType.BOOLEAN))),
+                            new ArgumentType.Fixed(new ArrayList<>(Arrays.asList(DataFusionDataType.STRING,
+                                    DataFusionDataType.BIGINT, DataFusionDataType.DOUBLE, DataFusionDataType.BOOLEAN))),
                             new ArgumentType.SameAsFirstArgType()));
         case NOT_EQUAL:
             return new DataFusionBaseExpr("!=", 2, DataFusionBaseExprCategory.BINARY,
                     Arrays.asList(DataFusionDataType.BOOLEAN),
                     Arrays.asList(
-                            new ArgumentType.Fixed(new ArrayList<>(Arrays.asList(DataFusionDataType.BIGINT,
-                                    DataFusionDataType.DOUBLE, DataFusionDataType.BOOLEAN))),
+                            new ArgumentType.Fixed(new ArrayList<>(Arrays.asList(DataFusionDataType.STRING,
+                                    DataFusionDataType.BIGINT, DataFusionDataType.DOUBLE, DataFusionDataType.BOOLEAN))),
                             new ArgumentType.SameAsFirstArgType()));
         case LESS_THAN:
             return new DataFusionBaseExpr("<", 2, DataFusionBaseExprCategory.BINARY,
                     Arrays.asList(DataFusionDataType.BOOLEAN),
                     Arrays.asList(
-                            new ArgumentType.Fixed(new ArrayList<>(Arrays.asList(DataFusionDataType.BIGINT,
-                                    DataFusionDataType.DOUBLE, DataFusionDataType.BOOLEAN))),
+                            new ArgumentType.Fixed(new ArrayList<>(Arrays.asList(DataFusionDataType.STRING,
+                                    DataFusionDataType.BIGINT, DataFusionDataType.DOUBLE, DataFusionDataType.BOOLEAN))),
                             new ArgumentType.SameAsFirstArgType()));
         case LESS_THAN_OR_EQUAL_TO:
             return new DataFusionBaseExpr("<=", 2, DataFusionBaseExprCategory.BINARY,
                     Arrays.asList(DataFusionDataType.BOOLEAN),
                     Arrays.asList(
-                            new ArgumentType.Fixed(new ArrayList<>(Arrays.asList(DataFusionDataType.BIGINT,
-                                    DataFusionDataType.DOUBLE, DataFusionDataType.BOOLEAN))),
+                            new ArgumentType.Fixed(new ArrayList<>(Arrays.asList(DataFusionDataType.STRING,
+                                    DataFusionDataType.BIGINT, DataFusionDataType.DOUBLE, DataFusionDataType.BOOLEAN))),
                             new ArgumentType.SameAsFirstArgType()));
         case GREATER_THAN:
             return new DataFusionBaseExpr(">", 2, DataFusionBaseExprCategory.BINARY,
                     Arrays.asList(DataFusionDataType.BOOLEAN),
                     Arrays.asList(
-                            new ArgumentType.Fixed(new ArrayList<>(Arrays.asList(DataFusionDataType.BIGINT,
-                                    DataFusionDataType.DOUBLE, DataFusionDataType.BOOLEAN))),
+                            new ArgumentType.Fixed(new ArrayList<>(Arrays.asList(DataFusionDataType.STRING,
+                                    DataFusionDataType.BIGINT, DataFusionDataType.DOUBLE, DataFusionDataType.BOOLEAN))),
                             new ArgumentType.SameAsFirstArgType()));
         case GREATER_THAN_OR_EQUAL_TO:
             return new DataFusionBaseExpr(">=", 2, DataFusionBaseExprCategory.BINARY,
                     Arrays.asList(DataFusionDataType.BOOLEAN),
                     Arrays.asList(
-                            new ArgumentType.Fixed(new ArrayList<>(Arrays.asList(DataFusionDataType.BIGINT,
-                                    DataFusionDataType.DOUBLE, DataFusionDataType.BOOLEAN))),
+                            new ArgumentType.Fixed(new ArrayList<>(Arrays.asList(DataFusionDataType.STRING,
+                                    DataFusionDataType.BIGINT, DataFusionDataType.DOUBLE, DataFusionDataType.BOOLEAN))),
                             new ArgumentType.SameAsFirstArgType()));
         case IS_DISTINCT_FROM:
             return new DataFusionBaseExpr("IS DISTINCT FROM", 2, DataFusionBaseExprCategory.BINARY,
                     Arrays.asList(DataFusionDataType.BOOLEAN),
                     Arrays.asList(
-                            new ArgumentType.Fixed(new ArrayList<>(Arrays.asList(DataFusionDataType.BIGINT,
-                                    DataFusionDataType.DOUBLE, DataFusionDataType.BOOLEAN))),
+                            new ArgumentType.Fixed(new ArrayList<>(Arrays.asList(DataFusionDataType.STRING,
+                                    DataFusionDataType.BIGINT, DataFusionDataType.DOUBLE, DataFusionDataType.BOOLEAN))),
                             new ArgumentType.SameAsFirstArgType()));
         case IS_NOT_DISTINCT_FROM:
             return new DataFusionBaseExpr("IS NOT DISTINCT FROM", 2, DataFusionBaseExprCategory.BINARY,
                     Arrays.asList(DataFusionDataType.BOOLEAN),
                     Arrays.asList(
-                            new ArgumentType.Fixed(new ArrayList<>(Arrays.asList(DataFusionDataType.BIGINT,
-                                    DataFusionDataType.DOUBLE, DataFusionDataType.BOOLEAN))),
+                            new ArgumentType.Fixed(new ArrayList<>(Arrays.asList(DataFusionDataType.STRING,
+                                    DataFusionDataType.BIGINT, DataFusionDataType.DOUBLE, DataFusionDataType.BOOLEAN))),
                             new ArgumentType.SameAsFirstArgType()));
+        // String related operators
+        case LIKE:
+            return DataFusionBaseExpr.createCommonStringOperatorTwoArgs(" LIKE ");
+        case NOT_LIKE:
+            return DataFusionBaseExpr.createCommonStringOperatorTwoArgs(" NOT LIKE ");
+        case ILIKE:
+            return DataFusionBaseExpr.createCommonStringOperatorTwoArgs(" ILIKE ");
+        case NOT_ILIKE:
+            return DataFusionBaseExpr.createCommonStringOperatorTwoArgs(" NOT ILIKE ");
+        case REGEX_MATCH:
+            return DataFusionBaseExpr.createCommonStringOperatorTwoArgs("~");
+        case REGEX_CASE_INSENSITIVE_MATCH:
+            return DataFusionBaseExpr.createCommonStringOperatorTwoArgs("~*");
+        case NOT_REGEX_MATCH:
+            return DataFusionBaseExpr.createCommonStringOperatorTwoArgs("!~");
+        case NOT_REGEX_CASE_INSENSITIVE_MATCH:
+            return DataFusionBaseExpr.createCommonStringOperatorTwoArgs("!~*");
+        case LIKE_MATCH:
+            return DataFusionBaseExpr.createCommonStringOperatorTwoArgs("~~");
+        case CASE_INSENSITIVE_LIKE_MATCH:
+            return DataFusionBaseExpr.createCommonStringOperatorTwoArgs("~~*");
+        case NOT_LIKE_MATCH:
+            return DataFusionBaseExpr.createCommonStringOperatorTwoArgs("!~~");
+        case NOT_CASE_INSENSITIVE_LIKE_MATCH:
+            return DataFusionBaseExpr.createCommonStringOperatorTwoArgs("!~~*");
+        case STRING_CONCATENATION:
+            return DataFusionBaseExpr.createCommonStringOperatorTwoArgs("||");
+        // Logical Operators
         case AND:
             return new DataFusionBaseExpr("AND", 2, DataFusionBaseExprCategory.BINARY,
                     Arrays.asList(DataFusionDataType.BOOLEAN),
@@ -200,38 +227,39 @@ public final class DataFusionBaseExprFactory {
                             new ArgumentType.Fixed(new ArrayList<>(
                                     Arrays.asList(DataFusionDataType.BIGINT, DataFusionDataType.DOUBLE))) // arg2
                     ));
+        // Scalar Functions
         case FUNC_ABS:
-            return createCommonNumericFuncSingleArg("ABS");
+            return DataFusionBaseExpr.createCommonNumericFuncSingleArg("ABS");
         case FUNC_ACOS:
-            return createCommonNumericFuncSingleArg("ACOS");
+            return DataFusionBaseExpr.createCommonNumericFuncSingleArg("ACOS");
         case FUNC_ACOSH:
-            return createCommonNumericFuncSingleArg("ACOSH");
+            return DataFusionBaseExpr.createCommonNumericFuncSingleArg("ACOSH");
         case FUNC_ASIN:
-            return createCommonNumericFuncSingleArg("ASIN");
+            return DataFusionBaseExpr.createCommonNumericFuncSingleArg("ASIN");
         case FUNC_ASINH:
-            return createCommonNumericFuncSingleArg("ASINH");
+            return DataFusionBaseExpr.createCommonNumericFuncSingleArg("ASINH");
         case FUNC_ATAN:
-            return createCommonNumericFuncSingleArg("ATAN");
+            return DataFusionBaseExpr.createCommonNumericFuncSingleArg("ATAN");
         case FUNC_ATANH:
-            return createCommonNumericFuncSingleArg("ATANH");
+            return DataFusionBaseExpr.createCommonNumericFuncSingleArg("ATANH");
         case FUNC_ATAN2:
-            return createCommonNumericFuncTwoArgs("ATAN2");
+            return DataFusionBaseExpr.createCommonNumericFuncTwoArgs("ATAN2");
         case FUNC_CBRT:
-            return createCommonNumericFuncSingleArg("CBRT");
+            return DataFusionBaseExpr.createCommonNumericFuncSingleArg("CBRT");
         case FUNC_CEIL:
-            return createCommonNumericFuncSingleArg("CEIL");
+            return DataFusionBaseExpr.createCommonNumericFuncSingleArg("CEIL");
         case FUNC_COS:
-            return createCommonNumericFuncSingleArg("COS");
+            return DataFusionBaseExpr.createCommonNumericFuncSingleArg("COS");
         case FUNC_COSH:
-            return createCommonNumericFuncSingleArg("COSH");
+            return DataFusionBaseExpr.createCommonNumericFuncSingleArg("COSH");
         case FUNC_DEGREES:
-            return createCommonNumericFuncSingleArg("DEGREES");
+            return DataFusionBaseExpr.createCommonNumericFuncSingleArg("DEGREES");
         case FUNC_EXP:
-            return createCommonNumericFuncSingleArg("EXP");
+            return DataFusionBaseExpr.createCommonNumericFuncSingleArg("EXP");
         case FUNC_FACTORIAL:
-            return createCommonNumericFuncSingleArg("FACTORIAL");
+            return DataFusionBaseExpr.createCommonNumericFuncSingleArg("FACTORIAL");
         case FUNC_FLOOR:
-            return createCommonNumericFuncSingleArg("FLOOR");
+            return DataFusionBaseExpr.createCommonNumericFuncSingleArg("FLOOR");
         case FUNC_GCD:
             return new DataFusionBaseExpr("GCD", 2, DataFusionBaseExprCategory.FUNC,
                     Arrays.asList(DataFusionDataType.BIGINT, DataFusionDataType.DOUBLE),
@@ -241,34 +269,34 @@ public final class DataFusionBaseExprFactory {
                             new ArgumentType.Fixed(new ArrayList<>(
                                     Arrays.asList(DataFusionDataType.BIGINT, DataFusionDataType.DOUBLE)))));
         case FUNC_ISNAN:
-            return createCommonNumericFuncSingleArg("ISNAN");
+            return DataFusionBaseExpr.createCommonNumericFuncSingleArg("ISNAN");
         case FUNC_ISZERO:
-            return createCommonNumericFuncSingleArg("ISZERO");
+            return DataFusionBaseExpr.createCommonNumericFuncSingleArg("ISZERO");
         case FUNC_LCM:
-            return createCommonNumericFuncTwoArgs("LCM");
+            return DataFusionBaseExpr.createCommonNumericFuncTwoArgs("LCM");
         case FUNC_LN:
-            return createCommonNumericFuncSingleArg("LN");
+            return DataFusionBaseExpr.createCommonNumericFuncSingleArg("LN");
         case FUNC_LOG:
-            return createCommonNumericFuncSingleArg("LOG");
+            return DataFusionBaseExpr.createCommonNumericFuncSingleArg("LOG");
         case FUNC_LOG_WITH_BASE:
-            return createCommonNumericFuncTwoArgs("LOG");
+            return DataFusionBaseExpr.createCommonNumericFuncTwoArgs("LOG");
         case FUNC_LOG10:
-            return createCommonNumericFuncSingleArg("LOG10");
+            return DataFusionBaseExpr.createCommonNumericFuncSingleArg("LOG10");
         case FUNC_LOG2:
-            return createCommonNumericFuncSingleArg("LOG2");
+            return DataFusionBaseExpr.createCommonNumericFuncSingleArg("LOG2");
         case FUNC_NANVL:
-            return createCommonNumericFuncTwoArgs("NANVL");
+            return DataFusionBaseExpr.createCommonNumericFuncTwoArgs("NANVL");
         case FUNC_PI:
             return new DataFusionBaseExpr("PI", 0, DataFusionBaseExprCategory.FUNC,
                     Arrays.asList(DataFusionDataType.BIGINT, DataFusionDataType.DOUBLE), Arrays.asList());
         case FUNC_POW:
-            return createCommonNumericFuncSingleArg("POW");
+            return DataFusionBaseExpr.createCommonNumericFuncSingleArg("POW");
         case FUNC_POWER:
-            return createCommonNumericFuncSingleArg("POWER");
+            return DataFusionBaseExpr.createCommonNumericFuncSingleArg("POWER");
         case FUNC_RADIANS:
-            return createCommonNumericFuncSingleArg("RADIANS");
+            return DataFusionBaseExpr.createCommonNumericFuncSingleArg("RADIANS");
         case FUNC_ROUND:
-            return createCommonNumericFuncSingleArg("ROUND");
+            return DataFusionBaseExpr.createCommonNumericFuncSingleArg("ROUND");
         case FUNC_ROUND_WITH_DECIMAL:
             return new DataFusionBaseExpr("ROUND", 2, DataFusionBaseExprCategory.FUNC,
                     Arrays.asList(DataFusionDataType.BIGINT, DataFusionDataType.DOUBLE),
@@ -277,19 +305,19 @@ public final class DataFusionBaseExprFactory {
                                     Arrays.asList(DataFusionDataType.BIGINT, DataFusionDataType.DOUBLE))),
                             new ArgumentType.Fixed(new ArrayList<>(Arrays.asList(DataFusionDataType.BIGINT)))));
         case FUNC_SIGNUM:
-            return createCommonNumericFuncSingleArg("SIGNUM");
+            return DataFusionBaseExpr.createCommonNumericFuncSingleArg("SIGNUM");
         case FUNC_SIN:
-            return createCommonNumericFuncSingleArg("SIN");
+            return DataFusionBaseExpr.createCommonNumericFuncSingleArg("SIN");
         case FUNC_SINH:
-            return createCommonNumericFuncSingleArg("SINH");
+            return DataFusionBaseExpr.createCommonNumericFuncSingleArg("SINH");
         case FUNC_SQRT:
-            return createCommonNumericFuncSingleArg("SQRT");
+            return DataFusionBaseExpr.createCommonNumericFuncSingleArg("SQRT");
         case FUNC_TAN:
-            return createCommonNumericFuncSingleArg("TAN");
+            return DataFusionBaseExpr.createCommonNumericFuncSingleArg("TAN");
         case FUNC_TANH:
-            return createCommonNumericFuncSingleArg("TANH");
+            return DataFusionBaseExpr.createCommonNumericFuncSingleArg("TANH");
         case FUNC_TRUNC:
-            return createCommonNumericFuncSingleArg("TRUNC");
+            return DataFusionBaseExpr.createCommonNumericFuncSingleArg("TRUNC");
         case FUNC_TRUNC_WITH_DECIMAL:
             return new DataFusionBaseExpr("TRUNC", 2, DataFusionBaseExprCategory.FUNC,
                     Arrays.asList(DataFusionDataType.BIGINT, DataFusionDataType.DOUBLE),
@@ -300,50 +328,281 @@ public final class DataFusionBaseExprFactory {
         case FUNC_COALESCE:
             return new DataFusionBaseExpr("COALESCE", -1, // overide by variadic
                     DataFusionBaseExprCategory.FUNC,
-                    Arrays.asList(DataFusionDataType.BIGINT, DataFusionDataType.DOUBLE), Arrays.asList(), true);
+                    Arrays.asList(DataFusionDataType.BIGINT, DataFusionDataType.DOUBLE, DataFusionDataType.BOOLEAN,
+                            DataFusionDataType.STRING),
+                    Arrays.asList(new ArgumentType.Fixed(new ArrayList<>(Arrays.asList(DataFusionDataType.BIGINT,
+                            DataFusionDataType.DOUBLE, DataFusionDataType.BOOLEAN, DataFusionDataType.STRING)))));
         case FUNC_NULLIF:
             return new DataFusionBaseExpr("NULLIF", 2, DataFusionBaseExprCategory.FUNC,
                     Arrays.asList(DataFusionDataType.BIGINT, DataFusionDataType.DOUBLE),
                     Arrays.asList(
-                            new ArgumentType.Fixed(new ArrayList<>(Arrays.asList(DataFusionDataType.BOOLEAN,
-                                    DataFusionDataType.BIGINT, DataFusionDataType.DOUBLE))),
-                            new ArgumentType.Fixed(new ArrayList<>(Arrays.asList(DataFusionDataType.BOOLEAN,
-                                    DataFusionDataType.BIGINT, DataFusionDataType.DOUBLE)))));
+                            new ArgumentType.Fixed(new ArrayList<>(Arrays.asList(DataFusionDataType.STRING,
+                                    DataFusionDataType.BOOLEAN, DataFusionDataType.BIGINT, DataFusionDataType.DOUBLE))),
+                            new ArgumentType.Fixed(
+                                    new ArrayList<>(Arrays.asList(DataFusionDataType.STRING, DataFusionDataType.BOOLEAN,
+                                            DataFusionDataType.BIGINT, DataFusionDataType.DOUBLE)))));
         case FUNC_NVL:
             return new DataFusionBaseExpr("NVL", 2, DataFusionBaseExprCategory.FUNC,
                     Arrays.asList(DataFusionDataType.BIGINT, DataFusionDataType.DOUBLE),
                     Arrays.asList(
-                            new ArgumentType.Fixed(new ArrayList<>(Arrays.asList(DataFusionDataType.BOOLEAN,
-                                    DataFusionDataType.BIGINT, DataFusionDataType.DOUBLE))),
-                            new ArgumentType.Fixed(new ArrayList<>(Arrays.asList(DataFusionDataType.BOOLEAN,
-                                    DataFusionDataType.BIGINT, DataFusionDataType.DOUBLE)))));
+                            new ArgumentType.Fixed(new ArrayList<>(Arrays.asList(DataFusionDataType.STRING,
+                                    DataFusionDataType.BOOLEAN, DataFusionDataType.BIGINT, DataFusionDataType.DOUBLE))),
+                            new ArgumentType.Fixed(
+                                    new ArrayList<>(Arrays.asList(DataFusionDataType.STRING, DataFusionDataType.BOOLEAN,
+                                            DataFusionDataType.BIGINT, DataFusionDataType.DOUBLE)))));
         case FUNC_NVL2:
             return new DataFusionBaseExpr("NVL2", 3, DataFusionBaseExprCategory.FUNC,
                     Arrays.asList(DataFusionDataType.BIGINT, DataFusionDataType.DOUBLE),
                     Arrays.asList(
-                            new ArgumentType.Fixed(new ArrayList<>(Arrays.asList(DataFusionDataType.BOOLEAN,
-                                    DataFusionDataType.BIGINT, DataFusionDataType.DOUBLE))),
-                            new ArgumentType.Fixed(new ArrayList<>(Arrays.asList(DataFusionDataType.BOOLEAN,
-                                    DataFusionDataType.BIGINT, DataFusionDataType.DOUBLE))),
-                            new ArgumentType.Fixed(new ArrayList<>(Arrays.asList(DataFusionDataType.BOOLEAN,
-                                    DataFusionDataType.BIGINT, DataFusionDataType.DOUBLE)))));
+                            new ArgumentType.Fixed(new ArrayList<>(Arrays.asList(DataFusionDataType.STRING,
+                                    DataFusionDataType.BOOLEAN, DataFusionDataType.BIGINT, DataFusionDataType.DOUBLE))),
+                            new ArgumentType.Fixed(new ArrayList<>(Arrays.asList(DataFusionDataType.STRING,
+                                    DataFusionDataType.BOOLEAN, DataFusionDataType.BIGINT, DataFusionDataType.DOUBLE))),
+                            new ArgumentType.Fixed(
+                                    new ArrayList<>(Arrays.asList(DataFusionDataType.STRING, DataFusionDataType.BOOLEAN,
+                                            DataFusionDataType.BIGINT, DataFusionDataType.DOUBLE)))));
         case FUNC_IFNULL:
             return new DataFusionBaseExpr("IFNULL", 2, DataFusionBaseExprCategory.FUNC,
                     Arrays.asList(DataFusionDataType.BIGINT, DataFusionDataType.DOUBLE),
                     Arrays.asList(
-                            new ArgumentType.Fixed(new ArrayList<>(Arrays.asList(DataFusionDataType.BOOLEAN,
-                                    DataFusionDataType.BIGINT, DataFusionDataType.DOUBLE))),
-                            new ArgumentType.Fixed(new ArrayList<>(Arrays.asList(DataFusionDataType.BOOLEAN,
-                                    DataFusionDataType.BIGINT, DataFusionDataType.DOUBLE)))));
+                            new ArgumentType.Fixed(new ArrayList<>(Arrays.asList(DataFusionDataType.STRING,
+                                    DataFusionDataType.BOOLEAN, DataFusionDataType.BIGINT, DataFusionDataType.DOUBLE))),
+                            new ArgumentType.Fixed(
+                                    new ArrayList<>(Arrays.asList(DataFusionDataType.STRING, DataFusionDataType.BOOLEAN,
+                                            DataFusionDataType.BIGINT, DataFusionDataType.DOUBLE)))));
 
+        case FUNC_ASCII:
+            return DataFusionBaseExpr.createCommonStringFuncOneStringArg("ASCII",
+                    Arrays.asList(DataFusionDataType.BIGINT, DataFusionDataType.DOUBLE));
+        case FUNC_LENGTH:
+            return DataFusionBaseExpr.createCommonStringFuncOneStringArg("LENGTH",
+                    Arrays.asList(DataFusionDataType.BIGINT, DataFusionDataType.DOUBLE));
+        case FUNC_CHAR_LENGTH:
+            return DataFusionBaseExpr.createCommonStringFuncOneStringArg("CHAR_LENGTH",
+                    Arrays.asList(DataFusionDataType.BIGINT, DataFusionDataType.DOUBLE));
+        case FUNC_CHARACTER_LENGTH:
+            return DataFusionBaseExpr.createCommonStringFuncOneStringArg("CHARACTER_LENGTH",
+                    Arrays.asList(DataFusionDataType.BIGINT, DataFusionDataType.DOUBLE));
+        case FUNC_BIT_LENGTH:
+            return DataFusionBaseExpr.createCommonStringFuncOneStringArg("BIT_LENGTH",
+                    Arrays.asList(DataFusionDataType.BIGINT, DataFusionDataType.DOUBLE));
+        case FUNC_CHR:
+            return new DataFusionBaseExpr("CHR", 1, DataFusionBaseExprCategory.FUNC,
+                    Arrays.asList(DataFusionDataType.STRING),
+                    Arrays.asList(new ArgumentType.Fixed(new ArrayList<>(Arrays.asList(DataFusionDataType.BIGINT)))));
+        case FUNC_INSTR:
+            return DataFusionBaseExpr.createCommonStringFuncTwoStringArg("INSTR",
+                    Arrays.asList(DataFusionDataType.BIGINT, DataFusionDataType.DOUBLE));
+        case FUNC_STRPOS:
+            return DataFusionBaseExpr.createCommonStringFuncTwoStringArg("STRPOS",
+                    Arrays.asList(DataFusionDataType.BIGINT, DataFusionDataType.DOUBLE));
+        case FUNC_LEVENSHTEIN:
+            return DataFusionBaseExpr.createCommonStringFuncTwoStringArg("LEVENSHTEIN",
+                    Arrays.asList(DataFusionDataType.BIGINT, DataFusionDataType.DOUBLE));
+        case FUNC_FIND_IN_SET:
+            return DataFusionBaseExpr.createCommonStringFuncTwoStringArg("FIND_IN_SET",
+                    Arrays.asList(DataFusionDataType.BIGINT, DataFusionDataType.DOUBLE));
+        case FUNC_INITCAP:
+            return DataFusionBaseExpr.createCommonStringFuncOneStringArg("INITCAP",
+                    Arrays.asList(DataFusionDataType.STRING));
+        case FUNC_LOWER:
+            return DataFusionBaseExpr.createCommonStringFuncOneStringArg("LOWER",
+                    Arrays.asList(DataFusionDataType.STRING));
+        case FUNC_UPPER:
+            return DataFusionBaseExpr.createCommonStringFuncOneStringArg("UPPER",
+                    Arrays.asList(DataFusionDataType.STRING));
+        case FUNC_OCTET_LENGTH:
+            return DataFusionBaseExpr.createCommonStringFuncOneStringArg("OCTET_LENGTH",
+                    Arrays.asList(DataFusionDataType.BIGINT, DataFusionDataType.DOUBLE));
+        case FUNC_BTRIM:
+            return DataFusionBaseExpr.createCommonStringFuncOneStringArg("BTRIM",
+                    Arrays.asList(DataFusionDataType.STRING));
+        case FUNC_BTRIM2:
+            return DataFusionBaseExpr.createCommonStringFuncTwoStringArg("BTRIM",
+                    Arrays.asList(DataFusionDataType.STRING));
+        case FUNC_TRIM:
+            return DataFusionBaseExpr.createCommonStringFuncOneStringArg("TRIM",
+                    Arrays.asList(DataFusionDataType.STRING));
+        case FUNC_TRIM2:
+            return DataFusionBaseExpr.createCommonStringFuncTwoStringArg("TRIM",
+                    Arrays.asList(DataFusionDataType.STRING));
+        case FUNC_LTRIM:
+            return DataFusionBaseExpr.createCommonStringFuncOneStringArg("LTRIM",
+                    Arrays.asList(DataFusionDataType.STRING));
+        case FUNC_LTRIM2:
+            return DataFusionBaseExpr.createCommonStringFuncTwoStringArg("LTRIM",
+                    Arrays.asList(DataFusionDataType.STRING));
+        case FUNC_RTRIM:
+            return DataFusionBaseExpr.createCommonStringFuncOneStringArg("RTRIM",
+                    Arrays.asList(DataFusionDataType.STRING));
+        case FUNC_RTRIM2:
+            return DataFusionBaseExpr.createCommonStringFuncTwoStringArg("RTRIM",
+                    Arrays.asList(DataFusionDataType.STRING));
+        case FUNC_LEFT:
+            return new DataFusionBaseExpr("LEFT", 2, DataFusionBaseExprCategory.FUNC,
+                    Arrays.asList(DataFusionDataType.STRING),
+                    Arrays.asList(new ArgumentType.Fixed(new ArrayList<>(Arrays.asList(DataFusionDataType.STRING))),
+                            new ArgumentType.Fixed(new ArrayList<>(Arrays.asList(DataFusionDataType.BIGINT)))));
+        case FUNC_RIGHT:
+            return new DataFusionBaseExpr("RIGHT", 2, DataFusionBaseExprCategory.FUNC,
+                    Arrays.asList(DataFusionDataType.STRING),
+                    Arrays.asList(new ArgumentType.Fixed(new ArrayList<>(Arrays.asList(DataFusionDataType.STRING))),
+                            new ArgumentType.Fixed(new ArrayList<>(Arrays.asList(DataFusionDataType.BIGINT)))));
+        case FUNC_CONCAT:
+            return new DataFusionBaseExpr("CONCAT", -1, // overide by variadic
+                    DataFusionBaseExprCategory.FUNC, Arrays.asList(DataFusionDataType.STRING),
+                    Arrays.asList(new ArgumentType.Fixed(new ArrayList<>(Arrays.asList(DataFusionDataType.BIGINT,
+                            DataFusionDataType.DOUBLE, DataFusionDataType.BOOLEAN, DataFusionDataType.STRING)))));
+        case FUNC_CONCAT_WS:
+            return new DataFusionBaseExpr("CONCAT_WS", -1, // overide by variadic
+                    DataFusionBaseExprCategory.FUNC, Arrays.asList(DataFusionDataType.STRING),
+                    Arrays.asList(new ArgumentType.Fixed(new ArrayList<>(Arrays.asList(DataFusionDataType.BIGINT,
+                            DataFusionDataType.DOUBLE, DataFusionDataType.BOOLEAN, DataFusionDataType.STRING)))));
+        // case FUNC_LPAD:
+        // return new DataFusionBaseExpr("LPAD", 2, DataFusionBaseExprCategory.FUNC,
+        // Arrays.asList(DataFusionDataType.STRING),
+        // Arrays.asList(
+        // new ArgumentType.Fixed(new ArrayList<>(Arrays.asList(DataFusionDataType.STRING))),
+        // new ArgumentType.Fixed(new ArrayList<>(Arrays.asList(DataFusionDataType.BIGINT)))));
+        // case FUNC_LPAD2:
+        // return new DataFusionBaseExpr("LPAD", 3, DataFusionBaseExprCategory.FUNC,
+        // Arrays.asList(DataFusionDataType.STRING),
+        // Arrays.asList(
+        // new ArgumentType.Fixed(new ArrayList<>(Arrays.asList(DataFusionDataType.STRING))),
+        // new ArgumentType.Fixed(new ArrayList<>(Arrays.asList(DataFusionDataType.BIGINT))),
+        // new ArgumentType.Fixed(new ArrayList<>(Arrays.asList(DataFusionDataType.STRING)))));
+        // case FUNC_RPAD:
+        // return new DataFusionBaseExpr("RPAD", 2, DataFusionBaseExprCategory.FUNC,
+        // Arrays.asList(DataFusionDataType.STRING),
+        // Arrays.asList(
+        // new ArgumentType.Fixed(new ArrayList<>(Arrays.asList(DataFusionDataType.STRING))),
+        // new ArgumentType.Fixed(new ArrayList<>(Arrays.asList(DataFusionDataType.BIGINT)))));
+        // case FUNC_RPAD2:
+        // return new DataFusionBaseExpr("RPAD", 3, DataFusionBaseExprCategory.FUNC,
+        // Arrays.asList(DataFusionDataType.STRING),
+        // Arrays.asList(
+        // new ArgumentType.Fixed(new ArrayList<>(Arrays.asList(DataFusionDataType.STRING))),
+        // new ArgumentType.Fixed(new ArrayList<>(Arrays.asList(DataFusionDataType.BIGINT))),
+        // new ArgumentType.Fixed(new ArrayList<>(Arrays.asList(DataFusionDataType.STRING)))));
+        // case FUNC_REPEAT:
+        // return new DataFusionBaseExpr("REPEAT", 2, DataFusionBaseExprCategory.FUNC,
+        // Arrays.asList(DataFusionDataType.STRING),
+        // Arrays.asList(
+        // new ArgumentType.Fixed(new ArrayList<>(Arrays.asList(DataFusionDataType.STRING))),
+        // new ArgumentType.Fixed(new ArrayList<>(Arrays.asList(DataFusionDataType.BIGINT)))));
+        case FUNC_REPLACE:
+            return new DataFusionBaseExpr("REPLACE", 3, DataFusionBaseExprCategory.FUNC,
+                    Arrays.asList(DataFusionDataType.STRING),
+                    Arrays.asList(new ArgumentType.Fixed(new ArrayList<>(Arrays.asList(DataFusionDataType.STRING))),
+                            new ArgumentType.Fixed(new ArrayList<>(Arrays.asList(DataFusionDataType.STRING))),
+                            new ArgumentType.Fixed(new ArrayList<>(Arrays.asList(DataFusionDataType.STRING)))));
+        case FUNC_REVERSE:
+            return DataFusionBaseExpr.createCommonStringFuncOneStringArg("REVERSE",
+                    Arrays.asList(DataFusionDataType.STRING));
+        case FUNC_SPLIT_PART:
+            return new DataFusionBaseExpr("SPLIT_PART", 3, DataFusionBaseExprCategory.FUNC,
+                    Arrays.asList(DataFusionDataType.STRING),
+                    Arrays.asList(new ArgumentType.Fixed(new ArrayList<>(Arrays.asList(DataFusionDataType.STRING))),
+                            new ArgumentType.Fixed(new ArrayList<>(Arrays.asList(DataFusionDataType.STRING))),
+                            new ArgumentType.Fixed(new ArrayList<>(Arrays.asList(DataFusionDataType.BIGINT)))));
+        case FUNC_SUBSTR:
+            return new DataFusionBaseExpr("SUBSTR", 2, DataFusionBaseExprCategory.FUNC,
+                    Arrays.asList(DataFusionDataType.STRING),
+                    Arrays.asList(new ArgumentType.Fixed(new ArrayList<>(Arrays.asList(DataFusionDataType.STRING))),
+                            new ArgumentType.Fixed(new ArrayList<>(Arrays.asList(DataFusionDataType.BIGINT)))));
+        case FUNC_SUBSTR2:
+            return new DataFusionBaseExpr("SUBSTR", 3, DataFusionBaseExprCategory.FUNC,
+                    Arrays.asList(DataFusionDataType.STRING),
+                    Arrays.asList(new ArgumentType.Fixed(new ArrayList<>(Arrays.asList(DataFusionDataType.STRING))),
+                            new ArgumentType.Fixed(new ArrayList<>(Arrays.asList(DataFusionDataType.BIGINT))),
+                            new ArgumentType.Fixed(new ArrayList<>(Arrays.asList(DataFusionDataType.BIGINT)))));
+        case FUNC_SUBSTRING:
+            return new DataFusionBaseExpr("SUBSTRING", 2, DataFusionBaseExprCategory.FUNC,
+                    Arrays.asList(DataFusionDataType.STRING),
+                    Arrays.asList(new ArgumentType.Fixed(new ArrayList<>(Arrays.asList(DataFusionDataType.STRING))),
+                            new ArgumentType.Fixed(new ArrayList<>(Arrays.asList(DataFusionDataType.BIGINT)))));
+        case FUNC_SUBSTRING2:
+            return new DataFusionBaseExpr("SUBSTRING", 3, DataFusionBaseExprCategory.FUNC,
+                    Arrays.asList(DataFusionDataType.STRING),
+                    Arrays.asList(new ArgumentType.Fixed(new ArrayList<>(Arrays.asList(DataFusionDataType.STRING))),
+                            new ArgumentType.Fixed(new ArrayList<>(Arrays.asList(DataFusionDataType.BIGINT))),
+                            new ArgumentType.Fixed(new ArrayList<>(Arrays.asList(DataFusionDataType.BIGINT)))));
+        case FUNC_TRANSLATE:
+            return new DataFusionBaseExpr("TRANSLATE", 3, DataFusionBaseExprCategory.FUNC,
+                    Arrays.asList(DataFusionDataType.STRING),
+                    Arrays.asList(new ArgumentType.Fixed(new ArrayList<>(Arrays.asList(DataFusionDataType.STRING))),
+                            new ArgumentType.Fixed(new ArrayList<>(Arrays.asList(DataFusionDataType.STRING))),
+                            new ArgumentType.Fixed(new ArrayList<>(Arrays.asList(DataFusionDataType.STRING)))));
+        case FUNC_TO_HEX:
+            return new DataFusionBaseExpr("TO_HEX", 1, DataFusionBaseExprCategory.FUNC,
+                    Arrays.asList(DataFusionDataType.STRING),
+                    Arrays.asList(new ArgumentType.Fixed(new ArrayList<>(Arrays.asList(DataFusionDataType.BIGINT)))));
+        // case FUNC_UUID:
+        // return new DataFusionBaseExpr("UUID", 0, DataFusionBaseExprCategory.FUNC,
+        // Arrays.asList(DataFusionDataType.STRING),
+        // Arrays.asList());
+        case FUNC_SUBSTR_INDEX:
+            return new DataFusionBaseExpr("SUBSTR_INDEX", 3, DataFusionBaseExprCategory.FUNC,
+                    Arrays.asList(DataFusionDataType.STRING),
+                    Arrays.asList(new ArgumentType.Fixed(new ArrayList<>(Arrays.asList(DataFusionDataType.STRING))),
+                            new ArgumentType.Fixed(new ArrayList<>(Arrays.asList(DataFusionDataType.STRING))),
+                            new ArgumentType.Fixed(new ArrayList<>(Arrays.asList(DataFusionDataType.BIGINT)))));
+        case FUNC_SUBSTRING_INDEX:
+            return new DataFusionBaseExpr("SUBSTRING_INDEX", 3, DataFusionBaseExprCategory.FUNC,
+                    Arrays.asList(DataFusionDataType.STRING),
+                    Arrays.asList(new ArgumentType.Fixed(new ArrayList<>(Arrays.asList(DataFusionDataType.STRING))),
+                            new ArgumentType.Fixed(new ArrayList<>(Arrays.asList(DataFusionDataType.STRING))),
+                            new ArgumentType.Fixed(new ArrayList<>(Arrays.asList(DataFusionDataType.BIGINT)))));
+        case FUNC_ENDS_WITH:
+            return DataFusionBaseExpr.createCommonStringFuncTwoStringArg("ENDS_WITH",
+                    Arrays.asList(DataFusionDataType.BOOLEAN));
+        case FUNC_STARTS_WITH:
+            return DataFusionBaseExpr.createCommonStringFuncTwoStringArg("STARTS_WITH",
+                    Arrays.asList(DataFusionDataType.BOOLEAN));
+        case FUNC_REGEXP_LIKE:
+            return DataFusionBaseExpr.createCommonStringFuncTwoStringArg("REGEXP_LIKE",
+                    Arrays.asList(DataFusionDataType.BOOLEAN));
+        case FUNC_REGEXP_LIKE2:
+            return new DataFusionBaseExpr("REGEXP_LIKE", 3, DataFusionBaseExprCategory.FUNC,
+                    Arrays.asList(DataFusionDataType.BOOLEAN),
+                    Arrays.asList(new ArgumentType.Fixed(new ArrayList<>(Arrays.asList(DataFusionDataType.STRING))),
+                            new ArgumentType.Fixed(new ArrayList<>(Arrays.asList(DataFusionDataType.STRING))),
+                            new ArgumentType.Fixed(new ArrayList<>(Arrays.asList(DataFusionDataType.STRING)))));
+        case FUNC_REGEXP_MATCH:
+            return DataFusionBaseExpr.createCommonStringFuncTwoStringArg("REGEXP_MATCH",
+                    Arrays.asList(DataFusionDataType.STRING)); // TODO(datafusion)
+        // return
+        // type
+        // change
+        // to
+        // List
+        // after
+        // List
+        // is
+        // supported
+        case FUNC_REGEXP_MATCH2:
+            return new DataFusionBaseExpr("REGEXP_MATCH", 3, DataFusionBaseExprCategory.FUNC,
+                    Arrays.asList(DataFusionDataType.STRING),
+                    Arrays.asList(new ArgumentType.Fixed(new ArrayList<>(Arrays.asList(DataFusionDataType.STRING))),
+                            new ArgumentType.Fixed(new ArrayList<>(Arrays.asList(DataFusionDataType.STRING))),
+                            new ArgumentType.Fixed(new ArrayList<>(Arrays.asList(DataFusionDataType.STRING)))));
+        case FUNC_REGEXP_REPLACE:
+            return DataFusionBaseExpr.createCommonStringFuncTwoStringArg("REGEXP_REPLACE",
+                    Arrays.asList(DataFusionDataType.STRING));
+        case FUNC_REGEXP_REPLACE2:
+            return new DataFusionBaseExpr("REGEXP_REPLACE", 3, DataFusionBaseExprCategory.FUNC,
+                    Arrays.asList(DataFusionDataType.STRING),
+                    Arrays.asList(new ArgumentType.Fixed(new ArrayList<>(Arrays.asList(DataFusionDataType.STRING))),
+                            new ArgumentType.Fixed(new ArrayList<>(Arrays.asList(DataFusionDataType.STRING))),
+                            new ArgumentType.Fixed(new ArrayList<>(Arrays.asList(DataFusionDataType.STRING)))));
         case AGGR_MIN:
-            return createCommonNumericAggrFuncSingleArg("MIN");
+            return DataFusionBaseExpr.createCommonNumericAggrFuncSingleArg("MIN");
         case AGGR_MAX:
-            return createCommonNumericAggrFuncSingleArg("MAX");
+            return DataFusionBaseExpr.createCommonNumericAggrFuncSingleArg("MAX");
         case AGGR_AVG:
-            return createCommonNumericAggrFuncSingleArg("AVG");
+            return DataFusionBaseExpr.createCommonNumericAggrFuncSingleArg("AVG");
         case AGGR_SUM:
-            return createCommonNumericAggrFuncSingleArg("SUM");
+            return DataFusionBaseExpr.createCommonNumericAggrFuncSingleArg("SUM");
         case AGGR_COUNT:
             return new DataFusionBaseExpr("COUNT", -1, DataFusionBaseExprCategory.AGGREGATE,
                     Arrays.asList(DataFusionDataType.BIGINT, DataFusionDataType.DOUBLE),

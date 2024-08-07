@@ -2,8 +2,6 @@ package sqlancer.datafusion;
 
 import static sqlancer.datafusion.DataFusionUtil.dfAssert;
 
-import java.util.regex.Pattern;
-
 import sqlancer.common.query.ExpectedErrors;
 
 public final class DataFusionErrors {
@@ -32,17 +30,21 @@ public final class DataFusionErrors {
         errors.add("Divide by zero");
         errors.add("Sort requires at least one column");
         errors.add("The data type type Null has no natural order");
+        errors.add("Regular expression did not compile");
+        errors.add("Cannot cast value");
+        errors.add("regex parse error");
+        errors.add("Invalid string operation: List"); // select [1,2] like null;
+        errors.add("Unsupported CAST from List"); // not sure
+
         /*
          * Known bugs
          */
-        errors.add("to type Int64"); // https://github.com/apache/datafusion/issues/11249
+        errors.add("to type Int"); // https://github.com/apache/datafusion/issues/11249
         errors.add("bitwise"); // https://github.com/apache/datafusion/issues/11260
-        errors.add(" Not all InterleaveExec children have a consistent hash partitioning."); // https://github.com/apache/datafusion/issues/11409
-        Pattern pattern = Pattern.compile("ORDER BY.*LOG", Pattern.CASE_INSENSITIVE);
-        errors.addRegex(pattern); // https://github.com/apache/datafusion/issues/11549
-        Pattern patternTriaFunc = Pattern.compile("ORDER BY.*\\b(ACOS|ACOSH|ASIN|ATANH)\\b", Pattern.CASE_INSENSITIVE);
-        errors.addRegex(patternTriaFunc); // https://github.com/apache/datafusion/issues/11552
         errors.add("Sort expressions cannot be empty for streaming merge."); // https://github.com/apache/datafusion/issues/11561
+        errors.add("compute_utf8_flag_op_scalar failed to cast literal value NULL for operation"); // https://github.com/apache/datafusion/issues/11623
+        errors.add("Schema error: No field named"); // https://github.com/apache/datafusion/issues/11635
+
         /*
          * False positives
          */
@@ -50,5 +52,10 @@ public final class DataFusionErrors {
         errors.add("Physical plan does not support logical expression AggregateFunction"); // False positive: when aggr
         // is generated in where
         // clause
+        /*
+         * Not critical, report later
+         */
+        errors.add("does not match with the projection expression");
+        errors.add("invalid operator for nested");
     }
 }
