@@ -137,9 +137,9 @@ public class DataFusionQueryPartitioningAggrTester extends DataFusionQueryPartit
                 String q2 = queries.get(2);
                 String q3 = queries.get(3);
 
-                return "SELECT " + "(" + q + ") - " + "(" + "    SELECT MIN(value) " + "    FROM ("
-                        + "        SELECT (" + q1 + ") AS value " + "        UNION ALL " + "        SELECT (" + q2
-                        + ") " + "        UNION ALL " + "        SELECT (" + q3 + ") " + "    ) AS sub"
+                return "SELECT " + "(" + q + ") - " + "(" + "    SELECT MIN(value) " + "    FROM (" + "        SELECT ("
+                        + q1 + ") AS value " + "        UNION ALL " + "        SELECT (" + q2 + ") "
+                        + "        UNION ALL " + "        SELECT (" + q3 + ") " + "    ) AS sub"
                         + ") AS result_difference;";
             }
 
@@ -156,9 +156,9 @@ public class DataFusionQueryPartitioningAggrTester extends DataFusionQueryPartit
                 String q2 = queries.get(2);
                 String q3 = queries.get(3);
 
-                return "SELECT " + "(" + q + ") - " + "(" + "    SELECT MAX(value) " + "    FROM ("
-                        + "        SELECT (" + q1 + ") AS value " + "        UNION ALL " + "        SELECT (" + q2
-                        + ") " + "        UNION ALL " + "        SELECT (" + q3 + ") " + "    ) AS sub"
+                return "SELECT " + "(" + q + ") - " + "(" + "    SELECT MAX(value) " + "    FROM (" + "        SELECT ("
+                        + q1 + ") AS value " + "        UNION ALL " + "        SELECT (" + q2 + ") "
+                        + "        UNION ALL " + "        SELECT (" + q3 + ") " + "    ) AS sub"
                         + ") AS result_difference;";
             }
 
@@ -175,9 +175,9 @@ public class DataFusionQueryPartitioningAggrTester extends DataFusionQueryPartit
                 String q2 = queries.get(2);
                 String q3 = queries.get(3);
 
-                return "SELECT " + "(" + q + ") - " + "(" + "    SELECT SUM(value) " + "    FROM ("
-                        + "        SELECT (" + q1 + ") AS value " + "        UNION ALL " + "        SELECT (" + q2
-                        + ") " + "        UNION ALL " + "        SELECT (" + q3 + ") " + "    ) AS sub"
+                return "SELECT " + "(" + q + ") - " + "(" + "    SELECT SUM(value) " + "    FROM (" + "        SELECT ("
+                        + q1 + ") AS value " + "        UNION ALL " + "        SELECT (" + q2 + ") "
+                        + "        UNION ALL " + "        SELECT (" + q3 + ") " + "    ) AS sub"
                         + ") AS result_difference;";
             }
 
@@ -194,9 +194,9 @@ public class DataFusionQueryPartitioningAggrTester extends DataFusionQueryPartit
                 String q2 = queries.get(2);
                 String q3 = queries.get(3);
 
-                return "SELECT " + "(" + q + ") - " + "(" + "    SELECT SUM(value) " + "    FROM ("
-                        + "        SELECT (" + q1 + ") AS value " + "        UNION ALL " + "        SELECT (" + q2
-                        + ") " + "        UNION ALL " + "        SELECT (" + q3 + ") " + "    ) AS sub"
+                return "SELECT " + "(" + q + ") - " + "(" + "    SELECT SUM(value) " + "    FROM (" + "        SELECT ("
+                        + q1 + ") AS value " + "        UNION ALL " + "        SELECT (" + q2 + ") "
+                        + "        UNION ALL " + "        SELECT (" + q3 + ") " + "    ) AS sub"
                         + ") AS result_difference;";
             }
 
