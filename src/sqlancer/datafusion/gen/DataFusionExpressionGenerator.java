@@ -223,6 +223,7 @@ public final class DataFusionExpressionGenerator
                     curExpr = new NewOrderingTerm<>(curExpr, NewOrderingTerm.Ordering.getRandom(),
                             NewOrderingTerm.OrderingNulls.getRandom());
                 }
+
             }
             newExpr.add(curExpr);
         }

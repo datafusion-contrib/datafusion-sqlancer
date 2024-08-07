@@ -35,6 +35,7 @@ public final class DataFusionErrors {
         errors.add("regex parse error");
         errors.add("Invalid string operation: List"); // select [1,2] like null;
         errors.add("Unsupported CAST from List"); // not sure
+
         /*
          * Known bugs
          */
@@ -43,6 +44,7 @@ public final class DataFusionErrors {
         errors.add("Sort expressions cannot be empty for streaming merge."); // https://github.com/apache/datafusion/issues/11561
         errors.add("compute_utf8_flag_op_scalar failed to cast literal value NULL for operation"); // https://github.com/apache/datafusion/issues/11623
         errors.add("Schema error: No field named"); // https://github.com/apache/datafusion/issues/11635
+
         /*
          * False positives
          */
