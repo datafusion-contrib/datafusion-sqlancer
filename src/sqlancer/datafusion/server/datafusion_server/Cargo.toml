@@ -19,9 +19,9 @@ bytes = "1.4"
 chrono = { version = "0.4.34", default-features = false }
 dashmap = "5.5.0"
 # This version is for SQLancer CI run (disabled temporary for multiple newly fixed bugs)
-# datafusion = { version = "40.0.0" }
+datafusion = { version = "41.0.0" }
 # Use following line if you want to test against the latest main branch of DataFusion
-datafusion = { git = "https://github.com/apache/datafusion.git", branch = "main" }
+# datafusion = { git = "https://github.com/apache/datafusion.git", branch = "main" }
 env_logger = "0.11"
 futures = "0.3"
 half = { version = "2.2.1", default-features = false }

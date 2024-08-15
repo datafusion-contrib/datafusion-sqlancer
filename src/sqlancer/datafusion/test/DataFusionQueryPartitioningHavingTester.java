@@ -59,23 +59,7 @@ public class DataFusionQueryPartitioningHavingTester extends DataFusionQueryPart
 
         // generate {group_by_cols, aggrs}
         if (!Randomly.getBooleanWithSmallProbability()) {
-            List<Node<DataFusionExpression>> groupByExprs = randomSelect.exprGenGroupBy
-                    .generateExpressions(state.getRandomly().getInteger(0, 4));
-
-            randomSelect.exprGenAggregate.supportAggregate = true;
-            List<Node<DataFusionExpression>> aggrExprs = randomSelect.exprGenAggregate
-                    .generateExpressions(state.getRandomly().getInteger(0, 4));
-            randomSelect.exprGenAggregate.supportAggregate = false;
-
-            if (!groupByExprs.isEmpty()) {
-                randomSelect.setGroupByClause(groupByExprs);
-
-                List<Node<DataFusionExpression>> fetchCols = new ArrayList<>();
-                fetchCols.addAll(groupByExprs);
-                fetchCols.addAll(aggrExprs);
-                fetchCols = Randomly.nonEmptySubset(fetchCols);
-                randomSelect.setFetchColumns(fetchCols);
-            }
+            randomSelect.setAggregates(state);
         }
 
         // DataFusionExpressionGenerator havingGen = randomSelect.exprGenAggregate;

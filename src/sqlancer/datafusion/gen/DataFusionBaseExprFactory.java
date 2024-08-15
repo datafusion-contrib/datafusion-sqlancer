@@ -609,6 +609,97 @@ public final class DataFusionBaseExprFactory {
                     Arrays.asList(new ArgumentType.Fixed(new ArrayList<>(Arrays.asList(DataFusionDataType.BOOLEAN,
                             DataFusionDataType.BIGINT, DataFusionDataType.DOUBLE)))),
                     true);
+        case BIT_AND:
+            return new DataFusionBaseExpr("BIT_AND", 1, DataFusionBaseExprCategory.AGGREGATE,
+                    Arrays.asList(DataFusionDataType.BIGINT),
+                    Arrays.asList(new ArgumentType.Fixed(new ArrayList<>(Arrays.asList(DataFusionDataType.BIGINT)))),
+                    false);
+        case BIT_OR:
+            return new DataFusionBaseExpr("BIT_OR", 1, DataFusionBaseExprCategory.AGGREGATE,
+                    Arrays.asList(DataFusionDataType.BIGINT),
+                    Arrays.asList(new ArgumentType.Fixed(new ArrayList<>(Arrays.asList(DataFusionDataType.BIGINT)))),
+                    false);
+        case BIT_XOR:
+            return new DataFusionBaseExpr("BIT_XOR", 1, DataFusionBaseExprCategory.AGGREGATE,
+                    Arrays.asList(DataFusionDataType.BIGINT),
+                    Arrays.asList(new ArgumentType.Fixed(new ArrayList<>(Arrays.asList(DataFusionDataType.BIGINT)))),
+                    false);
+        case BOOL_AND:
+            return new DataFusionBaseExpr("BOOL_AND", 1, DataFusionBaseExprCategory.AGGREGATE,
+                    Arrays.asList(DataFusionDataType.BOOLEAN),
+                    Arrays.asList(new ArgumentType.Fixed(new ArrayList<>(Arrays.asList(DataFusionDataType.BOOLEAN)))),
+                    false);
+        case BOOL_OR:
+            return new DataFusionBaseExpr("BOOL_OR", 1, DataFusionBaseExprCategory.AGGREGATE,
+                    Arrays.asList(DataFusionDataType.BOOLEAN),
+                    Arrays.asList(new ArgumentType.Fixed(new ArrayList<>(Arrays.asList(DataFusionDataType.BOOLEAN)))),
+                    false);
+        case MEAN:
+            return DataFusionBaseExpr.createCommonNumericAggrFuncSingleArg("MEAN");
+        case MEDIAN:
+            return DataFusionBaseExpr.createCommonNumericAggrFuncSingleArg("MEDIAN");
+        case FIRST_VALUE:
+            return DataFusionBaseExpr.createCommonNumericAggrFuncSingleArg("FIRST_VALUE");
+        case LAST_VALUE:
+            return DataFusionBaseExpr.createCommonNumericAggrFuncSingleArg("LAST_VALUE");
+        case CORR:
+            return DataFusionBaseExpr.createCommonNumericAggrFuncTwoArg("CORR");
+        case COVAR:
+            return DataFusionBaseExpr.createCommonNumericAggrFuncTwoArg("COVAR");
+        case COVAR_POP:
+            return DataFusionBaseExpr.createCommonNumericAggrFuncTwoArg("COVAR_POP");
+        case COVAR_SAMP:
+            return DataFusionBaseExpr.createCommonNumericAggrFuncTwoArg("COVAR_SAMP");
+        case STDDEV:
+            return DataFusionBaseExpr.createCommonNumericAggrFuncSingleArg("STDDEV");
+        case STDDEV_POP:
+            return DataFusionBaseExpr.createCommonNumericAggrFuncSingleArg("STDDEV_POP");
+        case STDDEV_SAMP:
+            return DataFusionBaseExpr.createCommonNumericAggrFuncSingleArg("STDDEV_SAMP");
+        case VAR:
+            return DataFusionBaseExpr.createCommonNumericAggrFuncSingleArg("VAR");
+        case VAR_POP:
+            return DataFusionBaseExpr.createCommonNumericAggrFuncSingleArg("VAR_POP");
+        case VAR_SAMP:
+            return DataFusionBaseExpr.createCommonNumericAggrFuncSingleArg("VAR_SAMP");
+        case REGR_AVGX:
+            return DataFusionBaseExpr.createCommonNumericAggrFuncTwoArg("REGR_AVGX");
+        case REGR_AVGY:
+            return DataFusionBaseExpr.createCommonNumericAggrFuncTwoArg("REGR_AVGY");
+        case REGR_COUNT:
+            return DataFusionBaseExpr.createCommonNumericAggrFuncTwoArg("REGR_COUNT");
+        case REGR_INTERCEPT:
+            return DataFusionBaseExpr.createCommonNumericAggrFuncTwoArg("REGR_INTERCEPT");
+        case REGR_R2:
+            return DataFusionBaseExpr.createCommonNumericAggrFuncTwoArg("REGR_R2");
+        case REGR_SLOPE:
+            return DataFusionBaseExpr.createCommonNumericAggrFuncTwoArg("REGR_SLOPE");
+        case REGR_SXX:
+            return DataFusionBaseExpr.createCommonNumericAggrFuncTwoArg("REGR_SXX");
+        case REGR_SYY:
+            return DataFusionBaseExpr.createCommonNumericAggrFuncTwoArg("REGR_SYY");
+        case REGR_SXY:
+            return DataFusionBaseExpr.createCommonNumericAggrFuncTwoArg("REGR_SXY");
+        case APPROX_DISTINCT:
+            return DataFusionBaseExpr.createCommonNumericAggrFuncSingleArg("APPROX_DISTINCT");
+        case APPROX_MEDIAN:
+            return DataFusionBaseExpr.createCommonNumericAggrFuncSingleArg("APPROX_MEDIAN");
+        case APPROX_PERCENTILE_CONT:
+            return DataFusionBaseExpr.createCommonNumericAggrFuncTwoArg("APPROX_PERCENTILE_CONT");
+        case APPROX_PERCENTILE_CONT2:
+            return new DataFusionBaseExpr("APPROX_PERCENTILE_CONT", 3, DataFusionBaseExprCategory.FUNC,
+                    Arrays.asList(DataFusionDataType.BIGINT, DataFusionDataType.DOUBLE),
+                    Arrays.asList(
+                            new ArgumentType.Fixed(new ArrayList<>(
+                                    Arrays.asList(DataFusionDataType.BIGINT, DataFusionDataType.DOUBLE))),
+                            new ArgumentType.SameAsFirstArgType(), new ArgumentType.SameAsFirstArgType()));
+        case APPROX_PERCENTILE_CONT_WITH_WEIGHT:
+            return new DataFusionBaseExpr("APPROX_PERCENTILE_CONT_WITH_WEIGHT", 3, DataFusionBaseExprCategory.FUNC,
+                    Arrays.asList(DataFusionDataType.BIGINT, DataFusionDataType.DOUBLE),
+                    Arrays.asList(
+                            new ArgumentType.Fixed(new ArrayList<>(
+                                    Arrays.asList(DataFusionDataType.BIGINT, DataFusionDataType.DOUBLE))),
+                            new ArgumentType.SameAsFirstArgType(), new ArgumentType.SameAsFirstArgType()));
         default:
             dfAssert(false, "Unreachable. Unimplemented branch for type " + type);
         }

@@ -35,6 +35,10 @@ public final class DataFusionErrors {
         errors.add("regex parse error");
         errors.add("Invalid string operation: List"); // select [1,2] like null;
         errors.add("Unsupported CAST from List"); // not sure
+        errors.add("This feature is not implemented: Support for 'approx_distinct' for data type");
+        errors.add("MedianAccumulator not supported for median");
+        errors.add("Percentile value for 'APPROX_PERCENTILE_CONT' must be Float32 or Float64 literal");
+        errors.add("digest max_size value for 'APPROX_PERCENTILE_CONT' must be UInt > 0 literal ");
 
         /*
          * Known bugs
@@ -44,6 +48,9 @@ public final class DataFusionErrors {
         errors.add("Sort expressions cannot be empty for streaming merge."); // https://github.com/apache/datafusion/issues/11561
         errors.add("compute_utf8_flag_op_scalar failed to cast literal value NULL for operation"); // https://github.com/apache/datafusion/issues/11623
         errors.add("Schema error: No field named"); // https://github.com/apache/datafusion/issues/11635
+        errors.add("Min/Max accumulator not implemented for type Null."); // https://github.com/apache/datafusion/issues/11749
+        errors.add("APPROX_PERCENTILE_CONT_WITH_WEIGHT"); // TODO issue
+        errors.add("APPROX_MEDIAN"); // TODO issue
 
         /*
          * False positives
@@ -53,9 +60,10 @@ public final class DataFusionErrors {
         // is generated in where
         // clause
         /*
-         * Not critical, report later
+         * Not critical, investigate in the future
          */
         errors.add("does not match with the projection expression");
         errors.add("invalid operator for nested");
+        errors.add("Arrow error: Cast error: Can't cast value");
     }
 }

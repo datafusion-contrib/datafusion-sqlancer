@@ -208,6 +208,22 @@ public final class DataFusionExpressionGenerator
         }
     }
 
+    // Duplicate column is possible (e.g. v1, v2, v1)
+    public List<Node<DataFusionExpression>> generateColumns(int nr) {
+        List<Node<DataFusionExpression>> cols = new ArrayList<>();
+        for (int i = 0; i < nr; i++) {
+            if (columns.isEmpty()) {
+                cols.add(generateColumn(getRandomType()));
+            } else {
+                DataFusionColumn col = Randomly.fromList(columns);
+                Node<DataFusionExpression> colExpr = new ColumnReferenceNode<>(col);
+                cols.add(colExpr);
+            }
+        }
+
+        return cols;
+    }
+
     @Override
     public List<Node<DataFusionExpression>> generateOrderBys() {
         List<Node<DataFusionExpression>> expr = super.generateOrderBys();
