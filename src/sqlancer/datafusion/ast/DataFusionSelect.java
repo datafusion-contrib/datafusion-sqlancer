@@ -212,6 +212,43 @@ public class DataFusionSelect extends SelectBase<Node<DataFusionExpression>> imp
         return randomSelect;
     }
 
+    // Randomly generate groupby/aggregates, and update fetch columns
+    // e.g.
+    // select v1, sum(v2)
+    // ...
+    // group by v1
+    //
+    // This method assume `DataFusionSelect` is propoerly initialized with `getRandomSelect()`
+    public void setAggregates(DataFusionGlobalState state) {
+        // group by exprs (e.g. group by v1, abs(v2))
+        List<Node<DataFusionExpression>> groupByExprs = new ArrayList<>();
+        int nGroupBy = state.getRandomly().getInteger(0, 3);
+        if (Randomly.getBoolean()) {
+            // Generate expressions like (v1+1, v2 *2)
+            groupByExprs = this.exprGenGroupBy.generateExpressions(nGroupBy);
+        } else {
+            // Generate simple column references like v1, v2
+            groupByExprs = this.exprGenGroupBy.generateColumns(nGroupBy);
+        }
+
+        // Generate aggregates like SUM(v1), MAX(V2)
+        this.exprGenAggregate.supportAggregate = true;
+        List<Node<DataFusionExpression>> aggrExprs = this.exprGenAggregate
+                .generateExpressions(state.getRandomly().getInteger(0, 3));
+        this.exprGenAggregate.supportAggregate = false;
+
+        // If it's empty, then no group by expr
+        if (!groupByExprs.isEmpty()) {
+            this.setGroupByClause(groupByExprs);
+
+            List<Node<DataFusionExpression>> fetchCols = new ArrayList<>();
+            fetchCols.addAll(groupByExprs);
+            fetchCols.addAll(aggrExprs);
+            fetchCols = Randomly.nonEmptySubset(fetchCols);
+            this.setFetchColumns(fetchCols);
+        }
+    }
+
     /*
      * If set fetch columns with string It will override `fetchColumns` in base class when
      * `DataFusionToStringVisitor.asString()` is called

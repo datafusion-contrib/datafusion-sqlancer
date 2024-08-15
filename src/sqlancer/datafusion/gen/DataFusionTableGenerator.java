@@ -17,7 +17,7 @@ public class DataFusionTableGenerator {
         sb.append(tableName);
         sb.append("(");
 
-        int colCount = Randomly.smallNumber() + 1 + (Randomly.getBoolean() ? 1 : 0);
+        int colCount = (int) Randomly.getNotCachedInteger(1, 8);
         for (int i = 0; i < colCount; i++) {
             sb.append("v").append(i).append(" ").append(DataFusionDataType.getRandomWithoutNull().toString());
 

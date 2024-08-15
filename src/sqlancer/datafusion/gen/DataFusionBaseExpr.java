@@ -78,6 +78,15 @@ public class DataFusionBaseExpr implements Operator {
                         new ArrayList<>(Arrays.asList(DataFusionDataType.BIGINT, DataFusionDataType.DOUBLE)))));
     }
 
+    public static DataFusionBaseExpr createCommonNumericAggrFuncTwoArg(String name) {
+        return new DataFusionBaseExpr(name, 2, DataFusionBaseExprCategory.AGGREGATE,
+                Arrays.asList(DataFusionDataType.BIGINT, DataFusionDataType.DOUBLE),
+                Arrays.asList(
+                        new ArgumentType.Fixed(
+                                new ArrayList<>(Arrays.asList(DataFusionDataType.BIGINT, DataFusionDataType.DOUBLE))),
+                        new ArgumentType.SameAsFirstArgType()));
+    }
+
     public static DataFusionBaseExpr createCommonNumericFuncTwoArgs(String name) {
         return new DataFusionBaseExpr(name, 2, DataFusionBaseExprCategory.FUNC,
                 Arrays.asList(DataFusionDataType.BIGINT, DataFusionDataType.DOUBLE),
@@ -303,8 +312,37 @@ public class DataFusionBaseExpr implements Operator {
 
         // Other Functions
 
-        // Aggregate Functions
-        AGGR_MIN, AGGR_MAX, AGGR_SUM, AGGR_AVG, AGGR_COUNT,
+        // Aggregate Functions (General)
+        AGGR_MIN, AGGR_MAX, AGGR_SUM, AGGR_AVG, AGGR_COUNT, BIT_AND, BIT_OR, BIT_XOR, BOOL_AND, BOOL_OR, MEAN, MEDIAN,
+        FIRST_VALUE, LAST_VALUE,
+        // Aggregate Functiosn (Statistical)
+        CORR, // corr(v1, v2)
+        COVAR, // covar(v1, v2)
+        COVAR_POP, // covar_pop(v1, v2)
+        COVAR_SAMP, // covar_samp(v1, v2)
+        STDDEV, // stddev(v)
+        STDDEV_POP, // stddev_pop(v)
+        STDDEV_SAMP, // stddev_samp(v)
+        VAR, // var(v)
+        VAR_POP, // var_pop(v)
+        VAR_SAMP, // var_samp(v)
+        REGR_AVGX, // regr_avgx(y, x)
+        REGR_AVGY, // regr_avgy(y, x)
+        REGR_COUNT, // regr_count(y, x)
+        REGR_INTERCEPT, // regr_intercept(y, x)
+        REGR_R2, // regr_r2(y, x)
+        REGR_SLOPE, // regr_slope(y, x)
+        REGR_SXX, // regr_sxx(x)
+        REGR_SYY, // regr_syy(y)
+        REGR_SXY, // regr_sxy(x, y)
+        // Aggregate Functions (Approximate)
+        APPROX_DISTINCT, // approx_distinct(expression)
+        APPROX_MEDIAN, // approx_median(expression)
+        APPROX_PERCENTILE_CONT, // approx_percentile_cont(expression, percentile)
+        APPROX_PERCENTILE_CONT2, // approx_percentile_cont(expression, percentile, centroids)
+        APPROX_PERCENTILE_CONT_WITH_WEIGHT // approx_percentile_cont_with_weight(expression, weight, percentile)
+
+        // Array Aggregate functions
     }
 
     /*
