@@ -1,6 +1,7 @@
 # DataFusion-SQLancer
-This is DataFusion's implementation of SQLancer on SQLancer's testing framework. See the original [README](https://github.com/sqlancer/sqlancer). 
-`datafusion-sqlancer` has found ~10 [bugs](https://github.com/apache/datafusion/issues?q=is%3Aissue+label%3Abug+sqlancer+) with only a small subset of SQL features implemented.
+This is [DataFusion](https://github.com/apache/datafusion)'s implementation of [SQLancer](https://github.com/sqlancer/sqlancer) on SQLancer's testing framework.
+
+`datafusion-sqlancer` has found ~30 [bugs](https://github.com/apache/datafusion/issues?q=is%3Aissue+label%3Abug+sqlancer+) in DataFusion.
 # Overview
 SQLancer (Synthesized Query Lancer) is a tool to automatically test Database Management Systems (DBMS) in order to find logic bugs in their implementation. It's a black box fuzzer which performs SQL-level testings.
 
@@ -88,11 +89,24 @@ Notes for query generation:
 - `generateAndTestDatabase()` is a "driver" method to create random databases, generate queries, and finally test results.
 - `DataFusionExpressionGenerator.java` includes top-down expression generation logic.
 - `test/DataFusionNoRECOracle.java` contains the final result check for generated queries.
-# Supported Features
-- SQL Features: `SELECT`, `FROM`, `WHERE`
-- Operators: Numeric, Comparison, Logical
-- Scalar Functions: Numeric Scalar Functions
-- SQLancer Test Oracles: `NoREC`, `TLP-Where`
+# Supported SQL Features
+- `JOIN`s, `ORDER BY`, `WHERE`
+- Numeric scalar functions/expression operators
+- String scalar functions/expression operators
+- Aggregate functions, `HAVING` clause
+- Window functions
+- (TODO) Time related data type functions
+- (TODO) Subquery
+- (TODO) Queries from parquet, csv
+- (TODO) Exploit different configurations (change config knobs like `target_partition`, `prefer_hash_join` etc.
+# Supported Test Oracles
+Note: most oracles only apply to a subset of available query types, for advanced SQL features like window functions we can only generate random queries and report crashes.
+More context for below test oracles at https://github.com/sqlancer/sqlancer/tree/main
+- NoREC 
+- TLP 
+- (TODO) PQS
+- (TODO) DQP for logical bugs in joins
+- (TODO) [EET](https://www.usenix.org/conference/osdi24/presentation/jiang#:~:text=To%20find%20logic%20bugs%20in,is%20independent%20of%20query%20patterns.) for logic bugs in joins and subqueries
 # Bug Report
 If any bug is found by `SQLancer`, it will print a full reproducer to terminal output, and also writes to `logs/datafusion_custom_log/error_report.log`.
 1. Then, first verify the bug with latest `datafusion` main branch.
