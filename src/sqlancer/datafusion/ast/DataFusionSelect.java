@@ -221,15 +221,7 @@ public class DataFusionSelect extends SelectBase<Node<DataFusionExpression>> imp
     // This method assume `DataFusionSelect` is propoerly initialized with `getRandomSelect()`
     public void setAggregates(DataFusionGlobalState state) {
         // group by exprs (e.g. group by v1, abs(v2))
-        List<Node<DataFusionExpression>> groupByExprs = new ArrayList<>();
-        int nGroupBy = state.getRandomly().getInteger(0, 3);
-        if (Randomly.getBoolean()) {
-            // Generate expressions like (v1+1, v2 *2)
-            groupByExprs = this.exprGenGroupBy.generateExpressions(nGroupBy);
-        } else {
-            // Generate simple column references like v1, v2
-            groupByExprs = this.exprGenGroupBy.generateColumns(nGroupBy);
-        }
+        List<Node<DataFusionExpression>> groupByExprs = this.exprGenGroupBy.generateExpressionsPreferColumns();
 
         // Generate aggregates like SUM(v1), MAX(V2)
         this.exprGenAggregate.supportAggregate = true;

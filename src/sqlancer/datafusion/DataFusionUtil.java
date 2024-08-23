@@ -175,6 +175,7 @@ public final class DataFusionUtil {
                 try {
                     logFileWriter.write(logLineHeader);
                     logFileWriter.write(logContent);
+                    logFileWriter.write("\n");
                     logFileWriter.flush();
                 } catch (IOException e) {
                     String err = "Failed to write to " + logType + " log: " + e.getMessage();

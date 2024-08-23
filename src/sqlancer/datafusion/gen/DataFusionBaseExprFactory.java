@@ -609,97 +609,171 @@ public final class DataFusionBaseExprFactory {
                     Arrays.asList(new ArgumentType.Fixed(new ArrayList<>(Arrays.asList(DataFusionDataType.BOOLEAN,
                             DataFusionDataType.BIGINT, DataFusionDataType.DOUBLE)))),
                     true);
-        case BIT_AND:
+        case AGGR_BIT_AND:
             return new DataFusionBaseExpr("BIT_AND", 1, DataFusionBaseExprCategory.AGGREGATE,
                     Arrays.asList(DataFusionDataType.BIGINT),
                     Arrays.asList(new ArgumentType.Fixed(new ArrayList<>(Arrays.asList(DataFusionDataType.BIGINT)))),
                     false);
-        case BIT_OR:
+        case AGGR_BIT_OR:
             return new DataFusionBaseExpr("BIT_OR", 1, DataFusionBaseExprCategory.AGGREGATE,
                     Arrays.asList(DataFusionDataType.BIGINT),
                     Arrays.asList(new ArgumentType.Fixed(new ArrayList<>(Arrays.asList(DataFusionDataType.BIGINT)))),
                     false);
-        case BIT_XOR:
+        case AGGR_BIT_XOR:
             return new DataFusionBaseExpr("BIT_XOR", 1, DataFusionBaseExprCategory.AGGREGATE,
                     Arrays.asList(DataFusionDataType.BIGINT),
                     Arrays.asList(new ArgumentType.Fixed(new ArrayList<>(Arrays.asList(DataFusionDataType.BIGINT)))),
                     false);
-        case BOOL_AND:
+        case AGGR_BOOL_AND:
             return new DataFusionBaseExpr("BOOL_AND", 1, DataFusionBaseExprCategory.AGGREGATE,
                     Arrays.asList(DataFusionDataType.BOOLEAN),
                     Arrays.asList(new ArgumentType.Fixed(new ArrayList<>(Arrays.asList(DataFusionDataType.BOOLEAN)))),
                     false);
-        case BOOL_OR:
+        case AGGR_BOOL_OR:
             return new DataFusionBaseExpr("BOOL_OR", 1, DataFusionBaseExprCategory.AGGREGATE,
                     Arrays.asList(DataFusionDataType.BOOLEAN),
                     Arrays.asList(new ArgumentType.Fixed(new ArrayList<>(Arrays.asList(DataFusionDataType.BOOLEAN)))),
                     false);
-        case MEAN:
+        case AGGR_MEAN:
             return DataFusionBaseExpr.createCommonNumericAggrFuncSingleArg("MEAN");
-        case MEDIAN:
+        case AGGR_MEDIAN:
             return DataFusionBaseExpr.createCommonNumericAggrFuncSingleArg("MEDIAN");
-        case FIRST_VALUE:
+        case AGGR_FIRST_VALUE:
             return DataFusionBaseExpr.createCommonNumericAggrFuncSingleArg("FIRST_VALUE");
-        case LAST_VALUE:
+        case AGGR_LAST_VALUE:
             return DataFusionBaseExpr.createCommonNumericAggrFuncSingleArg("LAST_VALUE");
-        case CORR:
+        case AGGR_CORR:
             return DataFusionBaseExpr.createCommonNumericAggrFuncTwoArg("CORR");
-        case COVAR:
+        case AGGR_COVAR:
             return DataFusionBaseExpr.createCommonNumericAggrFuncTwoArg("COVAR");
-        case COVAR_POP:
+        case AGGR_POP:
             return DataFusionBaseExpr.createCommonNumericAggrFuncTwoArg("COVAR_POP");
-        case COVAR_SAMP:
+        case AGGR_COVAR_SAMP:
             return DataFusionBaseExpr.createCommonNumericAggrFuncTwoArg("COVAR_SAMP");
-        case STDDEV:
+        case AGGR_STDDEV:
             return DataFusionBaseExpr.createCommonNumericAggrFuncSingleArg("STDDEV");
-        case STDDEV_POP:
+        case AGGR_STDDEV_POP:
             return DataFusionBaseExpr.createCommonNumericAggrFuncSingleArg("STDDEV_POP");
-        case STDDEV_SAMP:
+        case AGGR_STDDEV_SAMP:
             return DataFusionBaseExpr.createCommonNumericAggrFuncSingleArg("STDDEV_SAMP");
-        case VAR:
+        case AGGR_VAR:
             return DataFusionBaseExpr.createCommonNumericAggrFuncSingleArg("VAR");
-        case VAR_POP:
+        case AGGR_VAR_POP:
             return DataFusionBaseExpr.createCommonNumericAggrFuncSingleArg("VAR_POP");
-        case VAR_SAMP:
+        case AGGR_VAR_SAMP:
             return DataFusionBaseExpr.createCommonNumericAggrFuncSingleArg("VAR_SAMP");
-        case REGR_AVGX:
+        case AGGR_REGR_AVGX:
             return DataFusionBaseExpr.createCommonNumericAggrFuncTwoArg("REGR_AVGX");
-        case REGR_AVGY:
+        case AGGR_REGR_AVGY:
             return DataFusionBaseExpr.createCommonNumericAggrFuncTwoArg("REGR_AVGY");
-        case REGR_COUNT:
+        case AGGR_REGR_COUNT:
             return DataFusionBaseExpr.createCommonNumericAggrFuncTwoArg("REGR_COUNT");
-        case REGR_INTERCEPT:
+        case AGGR_REGR_INTERCEPT:
             return DataFusionBaseExpr.createCommonNumericAggrFuncTwoArg("REGR_INTERCEPT");
-        case REGR_R2:
+        case AGGR_REGR_R2:
             return DataFusionBaseExpr.createCommonNumericAggrFuncTwoArg("REGR_R2");
-        case REGR_SLOPE:
+        case AGGR_REGR_SLOPE:
             return DataFusionBaseExpr.createCommonNumericAggrFuncTwoArg("REGR_SLOPE");
-        case REGR_SXX:
+        case AGGR_REGR_SXX:
             return DataFusionBaseExpr.createCommonNumericAggrFuncTwoArg("REGR_SXX");
-        case REGR_SYY:
+        case AGGR_REGR_SYY:
             return DataFusionBaseExpr.createCommonNumericAggrFuncTwoArg("REGR_SYY");
-        case REGR_SXY:
+        case AGGR_REGR_SXY:
             return DataFusionBaseExpr.createCommonNumericAggrFuncTwoArg("REGR_SXY");
-        case APPROX_DISTINCT:
+        case AGGR_APPROX_DISTINCT:
             return DataFusionBaseExpr.createCommonNumericAggrFuncSingleArg("APPROX_DISTINCT");
-        case APPROX_MEDIAN:
+        case AGGR_APPROX_MEDIAN:
             return DataFusionBaseExpr.createCommonNumericAggrFuncSingleArg("APPROX_MEDIAN");
-        case APPROX_PERCENTILE_CONT:
+        case AGGR_APPROX_PERCENTILE_CONT:
             return DataFusionBaseExpr.createCommonNumericAggrFuncTwoArg("APPROX_PERCENTILE_CONT");
-        case APPROX_PERCENTILE_CONT2:
+        case AGGR_APPROX_PERCENTILE_CONT2:
             return new DataFusionBaseExpr("APPROX_PERCENTILE_CONT", 3, DataFusionBaseExprCategory.FUNC,
                     Arrays.asList(DataFusionDataType.BIGINT, DataFusionDataType.DOUBLE),
                     Arrays.asList(
                             new ArgumentType.Fixed(new ArrayList<>(
                                     Arrays.asList(DataFusionDataType.BIGINT, DataFusionDataType.DOUBLE))),
                             new ArgumentType.SameAsFirstArgType(), new ArgumentType.SameAsFirstArgType()));
-        case APPROX_PERCENTILE_CONT_WITH_WEIGHT:
+        case AGGR_APPROX_PERCENTILE_CONT_WITH_WEIGHT:
             return new DataFusionBaseExpr("APPROX_PERCENTILE_CONT_WITH_WEIGHT", 3, DataFusionBaseExprCategory.FUNC,
                     Arrays.asList(DataFusionDataType.BIGINT, DataFusionDataType.DOUBLE),
                     Arrays.asList(
                             new ArgumentType.Fixed(new ArrayList<>(
                                     Arrays.asList(DataFusionDataType.BIGINT, DataFusionDataType.DOUBLE))),
                             new ArgumentType.SameAsFirstArgType(), new ArgumentType.SameAsFirstArgType()));
+        case WINDOW_RANK:
+            return new DataFusionBaseExpr("RANK", 0, DataFusionBaseExprCategory.WINDOW,
+                    Arrays.asList(DataFusionDataType.BIGINT, DataFusionDataType.DOUBLE), Arrays.asList());
+        case WINDOW_ROW_NUMBER:
+            return new DataFusionBaseExpr("ROW_NUMBER", 0, DataFusionBaseExprCategory.WINDOW,
+                    Arrays.asList(DataFusionDataType.BIGINT, DataFusionDataType.DOUBLE), Arrays.asList());
+        case WINDOW_DENSE_RANK:
+            return new DataFusionBaseExpr("DENSE_RANK", 0, DataFusionBaseExprCategory.WINDOW,
+                    Arrays.asList(DataFusionDataType.BIGINT, DataFusionDataType.DOUBLE), Arrays.asList());
+        case WINDOW_NTILE:
+            return new DataFusionBaseExpr("NTILE", 1, DataFusionBaseExprCategory.WINDOW,
+                    Arrays.asList(DataFusionDataType.BIGINT, DataFusionDataType.DOUBLE),
+                    Arrays.asList(new ArgumentType.Fixed(
+                            new ArrayList<>(Arrays.asList(DataFusionDataType.BIGINT, DataFusionDataType.DOUBLE)))));
+        case WINDOW_CUME_DIST:
+            return new DataFusionBaseExpr("CUME_DIST", 0, DataFusionBaseExprCategory.WINDOW,
+                    Arrays.asList(DataFusionDataType.BIGINT, DataFusionDataType.DOUBLE), Arrays.asList());
+        case WINDOW_PERCENT_RANK:
+            return new DataFusionBaseExpr("PERCENT_RANK", 0, DataFusionBaseExprCategory.WINDOW,
+                    Arrays.asList(DataFusionDataType.BIGINT, DataFusionDataType.DOUBLE), Arrays.asList());
+        case WINDOW_LAG1:
+            return new DataFusionBaseExpr(
+                    "LAG", 1, DataFusionBaseExprCategory.WINDOW, Arrays.asList(DataFusionDataType.BIGINT,
+                            DataFusionDataType.DOUBLE, DataFusionDataType.STRING, DataFusionDataType.BOOLEAN),
+                    Arrays.asList(new ArgumentType.SameAsReturnType()));
+        case WINDOW_LAG2:
+            return new DataFusionBaseExpr("LAG", 2, DataFusionBaseExprCategory.WINDOW,
+                    Arrays.asList(DataFusionDataType.BIGINT, DataFusionDataType.DOUBLE, DataFusionDataType.STRING,
+                            DataFusionDataType.BOOLEAN),
+                    Arrays.asList(new ArgumentType.SameAsReturnType(), new ArgumentType.Fixed(
+                            new ArrayList<>(Arrays.asList(DataFusionDataType.BIGINT, DataFusionDataType.DOUBLE)))));
+        case WINDOW_LAG3:
+            return new DataFusionBaseExpr("LAG", 3, DataFusionBaseExprCategory.WINDOW,
+                    Arrays.asList(DataFusionDataType.BIGINT, DataFusionDataType.DOUBLE, DataFusionDataType.STRING,
+                            DataFusionDataType.BOOLEAN),
+                    Arrays.asList(new ArgumentType.SameAsReturnType(),
+                            new ArgumentType.Fixed(new ArrayList<>(
+                                    Arrays.asList(DataFusionDataType.BIGINT, DataFusionDataType.DOUBLE))),
+                            new ArgumentType.SameAsReturnType()));
+        case WINDOW_LEAD1:
+            return new DataFusionBaseExpr(
+                    "LEAD", 1, DataFusionBaseExprCategory.WINDOW, Arrays.asList(DataFusionDataType.BIGINT,
+                            DataFusionDataType.DOUBLE, DataFusionDataType.STRING, DataFusionDataType.BOOLEAN),
+                    Arrays.asList(new ArgumentType.SameAsReturnType()));
+        case WINDOW_LEAD2:
+            return new DataFusionBaseExpr("LEAD", 2, DataFusionBaseExprCategory.WINDOW,
+                    Arrays.asList(DataFusionDataType.BIGINT, DataFusionDataType.DOUBLE, DataFusionDataType.STRING,
+                            DataFusionDataType.BOOLEAN),
+                    Arrays.asList(new ArgumentType.SameAsReturnType(), new ArgumentType.Fixed(
+                            new ArrayList<>(Arrays.asList(DataFusionDataType.BIGINT, DataFusionDataType.DOUBLE)))));
+        case WINDOW_LEAD3:
+            return new DataFusionBaseExpr("LEAD", 3, DataFusionBaseExprCategory.WINDOW,
+                    Arrays.asList(DataFusionDataType.BIGINT, DataFusionDataType.DOUBLE, DataFusionDataType.STRING,
+                            DataFusionDataType.BOOLEAN),
+                    Arrays.asList(new ArgumentType.SameAsReturnType(),
+                            new ArgumentType.Fixed(new ArrayList<>(
+                                    Arrays.asList(DataFusionDataType.BIGINT, DataFusionDataType.DOUBLE))),
+                            new ArgumentType.SameAsReturnType()));
+        case WINDOW_FIRST_VALUE:
+            return new DataFusionBaseExpr(
+                    "FIRST_VALUE", 1, DataFusionBaseExprCategory.WINDOW, Arrays.asList(DataFusionDataType.BIGINT,
+                            DataFusionDataType.DOUBLE, DataFusionDataType.STRING, DataFusionDataType.BOOLEAN),
+                    Arrays.asList(new ArgumentType.SameAsReturnType()));
+        case WINDOW_LAST_VALUE:
+            return new DataFusionBaseExpr(
+                    "LAST_VALUE", 1, DataFusionBaseExprCategory.WINDOW, Arrays.asList(DataFusionDataType.BIGINT,
+                            DataFusionDataType.DOUBLE, DataFusionDataType.STRING, DataFusionDataType.BOOLEAN),
+                    Arrays.asList(new ArgumentType.SameAsReturnType()));
+        case WINDOW_NTH_VALUE:
+            return new DataFusionBaseExpr("NTH_VALUE", 2, DataFusionBaseExprCategory.WINDOW,
+                    Arrays.asList(DataFusionDataType.BIGINT, DataFusionDataType.DOUBLE, DataFusionDataType.STRING,
+                            DataFusionDataType.BOOLEAN),
+                    Arrays.asList(new ArgumentType.SameAsReturnType(), new ArgumentType.Fixed(
+                            new ArrayList<>(Arrays.asList(DataFusionDataType.BIGINT, DataFusionDataType.DOUBLE)))));
         default:
             dfAssert(false, "Unreachable. Unimplemented branch for type " + type);
         }
