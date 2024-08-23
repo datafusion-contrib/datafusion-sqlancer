@@ -363,7 +363,6 @@ public class DataFusionBaseExpr implements Operator {
         WINDOW_FIRST_VALUE, // first_value(expression) - Returns value from the first row of the window frame
         WINDOW_LAST_VALUE, // last_value(expression) - Returns value from the last row of the window frame
         WINDOW_NTH_VALUE, // nth_value(expression, n) - Returns value from the nth row of the window frame
-
     }
 
     /*
