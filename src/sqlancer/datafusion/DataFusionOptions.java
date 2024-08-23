@@ -13,6 +13,7 @@ import sqlancer.common.oracle.TestOracle;
 import sqlancer.datafusion.DataFusionOptions.DataFusionOracleFactory;
 import sqlancer.datafusion.DataFusionProvider.DataFusionGlobalState;
 import sqlancer.datafusion.test.DataFusionNoCrashAggregate;
+import sqlancer.datafusion.test.DataFusionNoCrashWindow;
 import sqlancer.datafusion.test.DataFusionNoRECOracle;
 import sqlancer.datafusion.test.DataFusionQueryPartitioningAggrTester;
 import sqlancer.datafusion.test.DataFusionQueryPartitioningHavingTester;
@@ -26,10 +27,12 @@ public class DataFusionOptions implements DBMSSpecificOptions<DataFusionOracleFa
     @Override
     public List<DataFusionOracleFactory> getTestOracleFactory() {
         return Arrays.asList(
-                // DataFusionOracleFactory.NO_CRASH_AGGREGATE
+                // DataFusionOracleFactory.NO_CRASH_WINDOW,
+                // DataFusionOracleFactory.NO_CRASH_AGGREGATE,
                 DataFusionOracleFactory.NOREC, DataFusionOracleFactory.QUERY_PARTITIONING_WHERE
-        /* DataFusionOracleFactory.QUERY_PARTITIONING_AGGREGATE */
-        /* , DataFusionOracleFactory.QUERY_PARTITIONING_HAVING */);
+        // DataFusionOracleFactory.QUERY_PARTITIONING_AGGREGATE
+        // ,DataFusionOracleFactory.QUERY_PARTITIONING_HAVING
+        );
     }
 
     public enum DataFusionOracleFactory implements OracleFactory<DataFusionGlobalState> {
@@ -61,6 +64,12 @@ public class DataFusionOptions implements DBMSSpecificOptions<DataFusionOracleFa
             @Override
             public TestOracle<DataFusionGlobalState> create(DataFusionGlobalState globalState) throws SQLException {
                 return new DataFusionNoCrashAggregate(globalState);
+            }
+        },
+        NO_CRASH_WINDOW {
+            @Override
+            public TestOracle<DataFusionGlobalState> create(DataFusionGlobalState globalState) throws SQLException {
+                return new DataFusionNoCrashWindow(globalState);
             }
         }
     }

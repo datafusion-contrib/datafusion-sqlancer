@@ -33,6 +33,7 @@ public final class DataFusionExpressionGenerator
 
     private final DataFusionGlobalState globalState;
     public boolean supportAggregate; // control if generate aggr exprs, related logic is in `generateExpression()`
+    public boolean supportWindow; // control if generate window exprs, related logic is in `generateExpression()`
 
     public DataFusionExpressionGenerator(DataFusionGlobalState globalState) {
         this.globalState = globalState;
@@ -55,19 +56,29 @@ public final class DataFusionExpressionGenerator
     }
 
     // If target expr type is numeric, when `supportAggregate`, make it more likely to generate aggregate functions
-    private boolean filterBaseExpr(DataFusionBaseExpr expr, DataFusionDataType type) {
+    // Since randomly generated expressions are nested:
+    // For window/aggregate case, we want only outer layer to be window/aggr
+    // to make it more likely to generate valid query
+    private boolean filterBaseExpr(DataFusionBaseExpr expr, DataFusionDataType type, int depth) {
         // keep only aggregates
-        if (supportAggregate && type.isNumeric() && Randomly.getBoolean()) {
+        if (supportAggregate && depth == 0 && type.isNumeric() && Randomly.getBoolean()) {
             return expr.exprType == DataFusionBaseExpr.DataFusionBaseExprCategory.AGGREGATE;
         }
 
+        // keep only window (aggregate function can also be used in window clause)
+        if (supportWindow && depth == 0 && type.isNumeric() && Randomly.getBoolean()) {
+            return expr.exprType == DataFusionBaseExpr.DataFusionBaseExprCategory.AGGREGATE
+                    || expr.exprType == DataFusionBaseExprCategory.WINDOW;
+        }
+
         // keep all avaialble expressions (aggr + non-aggr)
-        if (supportAggregate || Randomly.getBooleanWithRatherLowProbability()) {
+        if (Randomly.getBooleanWithRatherLowProbability()) {
             return true;
         }
 
         // keep all non-aggregate exprs
-        return expr.exprType != DataFusionBaseExprCategory.AGGREGATE;
+        return expr.exprType != DataFusionBaseExprCategory.AGGREGATE
+                && expr.exprType != DataFusionBaseExprCategory.WINDOW;
     }
 
     // By default all possible non-aggregate expressions
@@ -83,7 +94,7 @@ public final class DataFusionExpressionGenerator
         }
 
         List<DataFusionBaseExpr> possibleBaseExprs = getExprsWithReturnType(Optional.of(type)).stream()
-                .filter(expr -> filterBaseExpr(expr, type)).collect(Collectors.toList());
+                .filter(expr -> filterBaseExpr(expr, type, depth)).collect(Collectors.toList());
 
         if (possibleBaseExprs.isEmpty()) {
             dfAssert(type == DataFusionDataType.NULL, "should able to generate expression with type " + type);
@@ -91,6 +102,18 @@ public final class DataFusionExpressionGenerator
         }
 
         DataFusionBaseExpr randomExpr = Randomly.fromList(possibleBaseExprs);
+
+        // if (randomExpr.exprType == DataFusionBaseExprCategory.AGGREGATE || randomExpr.exprType ==
+        // DataFusionBaseExprCategory.WINDOW) {
+        // if (depth == 0) {
+        // System.out.println("DBG depth 0");
+        // System.out.println(possibleBaseExprs);
+        // } else {
+        // System.out.println("DBG depth NOT 0");
+        // System.out.println(possibleBaseExprs);
+        // }
+        // }
+
         switch (randomExpr.exprType) {
         case UNARY_PREFIX:
             DataFusionDataType argType = null;
@@ -140,6 +163,8 @@ public final class DataFusionExpressionGenerator
             return new NewBinaryOperatorNode<DataFusionExpression>(generateExpression(argTypeList.get(0), depth + 1),
                     generateExpression(argTypeList.get(1), depth + 1), randomExpr);
         case AGGREGATE:
+            // Fall through
+        case WINDOW:
             // Fall through
         case FUNC:
             return generateFunctionExpression(type, depth, randomExpr);
@@ -224,11 +249,40 @@ public final class DataFusionExpressionGenerator
         return cols;
     }
 
+    // Randomly generate [0,3) expressions
+    // Column list has higher probability (~90%)
+    // e.g. 'v1, v2'
+    // Expression list is also possible
+    // e.g. 'v1+1, abs(v2*2)'
+    public List<Node<DataFusionExpression>> generateExpressionsPreferColumns() {
+        return generateExpressionsPreferColumns(3);
+    }
+
+    // See documentation in above `generateExpressionsPreferColumns()`
+    public List<Node<DataFusionExpression>> generateExpressionsPreferColumns(int nr) {
+        int nExprs = (int) Randomly.getNotCachedInteger(0, nr);
+        List<Node<DataFusionExpression>> exprList = new ArrayList<>();
+        if (Randomly.getBooleanWithRatherLowProbability()) {
+            exprList = this.generateExpressions(nExprs);
+        } else {
+            exprList = this.generateColumns(nExprs);
+        }
+
+        return exprList;
+    }
+
+    // Randomly generate [0,3) expressions in order by list
+    // Column list has higher probability (~90%)
+    // e.g. 'order by v1, v2'
+    // Expression list is also possible
+    // e.g. 'order by v1+1, abs(v2*2)'
     @Override
     public List<Node<DataFusionExpression>> generateOrderBys() {
-        List<Node<DataFusionExpression>> expr = super.generateOrderBys();
-        List<Node<DataFusionExpression>> newExpr = new ArrayList<>(expr.size());
+        List<Node<DataFusionExpression>> expr = generateExpressionsPreferColumns();
 
+        // Construct a new list with ordering properties
+        // e.g. 'order by v1 ASC, v2 DESC NULLS FIRST'
+        List<Node<DataFusionExpression>> newExpr = new ArrayList<>(expr.size());
         for (Node<DataFusionExpression> curExpr : expr) {
             if (Randomly.getBoolean()) {
                 if (Randomly.getBoolean()) {
@@ -243,6 +297,7 @@ public final class DataFusionExpressionGenerator
             }
             newExpr.add(curExpr);
         }
+
         return newExpr;
     }
 
@@ -313,6 +368,15 @@ public final class DataFusionExpressionGenerator
             });
         }
 
+    }
+
+    // Utilities
+    // =========
+
+    // ~90% is [0,5), other case any random int like int::max
+    public static int getIntegerPreferSmallPositive(DataFusionGlobalState state) {
+        return Randomly.getBooleanWithRatherLowProbability() ? (int) state.getRandomly().getInteger()
+                : state.getRandomly().getInteger(0, 5);
     }
 
 }

@@ -112,7 +112,7 @@ public class DataFusionBaseExpr implements Operator {
      */
     // Used to construct `src.common.ast.*Node`
     public enum DataFusionBaseExprCategory {
-        UNARY_PREFIX, UNARY_POSTFIX, BINARY, FUNC, AGGREGATE
+        UNARY_PREFIX, UNARY_POSTFIX, BINARY, FUNC, AGGREGATE, WINDOW
     }
 
     /*
@@ -313,36 +313,57 @@ public class DataFusionBaseExpr implements Operator {
         // Other Functions
 
         // Aggregate Functions (General)
-        AGGR_MIN, AGGR_MAX, AGGR_SUM, AGGR_AVG, AGGR_COUNT, BIT_AND, BIT_OR, BIT_XOR, BOOL_AND, BOOL_OR, MEAN, MEDIAN,
-        FIRST_VALUE, LAST_VALUE,
+        AGGR_MIN, AGGR_MAX, AGGR_SUM, AGGR_AVG, AGGR_COUNT, AGGR_BIT_AND, AGGR_BIT_OR, AGGR_BIT_XOR, AGGR_BOOL_AND,
+        AGGR_BOOL_OR, AGGR_MEAN, AGGR_MEDIAN, AGGR_FIRST_VALUE, AGGR_LAST_VALUE,
         // Aggregate Functiosn (Statistical)
-        CORR, // corr(v1, v2)
-        COVAR, // covar(v1, v2)
-        COVAR_POP, // covar_pop(v1, v2)
-        COVAR_SAMP, // covar_samp(v1, v2)
-        STDDEV, // stddev(v)
-        STDDEV_POP, // stddev_pop(v)
-        STDDEV_SAMP, // stddev_samp(v)
-        VAR, // var(v)
-        VAR_POP, // var_pop(v)
-        VAR_SAMP, // var_samp(v)
-        REGR_AVGX, // regr_avgx(y, x)
-        REGR_AVGY, // regr_avgy(y, x)
-        REGR_COUNT, // regr_count(y, x)
-        REGR_INTERCEPT, // regr_intercept(y, x)
-        REGR_R2, // regr_r2(y, x)
-        REGR_SLOPE, // regr_slope(y, x)
-        REGR_SXX, // regr_sxx(x)
-        REGR_SYY, // regr_syy(y)
-        REGR_SXY, // regr_sxy(x, y)
+        AGGR_CORR, // corr(v1, v2)
+        AGGR_COVAR, // covar(v1, v2)
+        AGGR_POP, // covar_pop(v1, v2)
+        AGGR_COVAR_SAMP, // covar_samp(v1, v2)
+        AGGR_STDDEV, // stddev(v)
+        AGGR_STDDEV_POP, // stddev_pop(v)
+        AGGR_STDDEV_SAMP, // stddev_samp(v)
+        AGGR_VAR, // var(v)
+        AGGR_VAR_POP, // var_pop(v)
+        AGGR_VAR_SAMP, // var_samp(v)
+        AGGR_REGR_AVGX, // regr_avgx(y, x)
+        AGGR_REGR_AVGY, // regr_avgy(y, x)
+        AGGR_REGR_COUNT, // regr_count(y, x)
+        AGGR_REGR_INTERCEPT, // regr_intercept(y, x)
+        AGGR_REGR_R2, // regr_r2(y, x)
+        AGGR_REGR_SLOPE, // regr_slope(y, x)
+        AGGR_REGR_SXX, // regr_sxx(x)
+        AGGR_REGR_SYY, // regr_syy(y)
+        AGGR_REGR_SXY, // regr_sxy(x, y)
         // Aggregate Functions (Approximate)
-        APPROX_DISTINCT, // approx_distinct(expression)
-        APPROX_MEDIAN, // approx_median(expression)
-        APPROX_PERCENTILE_CONT, // approx_percentile_cont(expression, percentile)
-        APPROX_PERCENTILE_CONT2, // approx_percentile_cont(expression, percentile, centroids)
-        APPROX_PERCENTILE_CONT_WITH_WEIGHT // approx_percentile_cont_with_weight(expression, weight, percentile)
+        AGGR_APPROX_DISTINCT, // approx_distinct(expression)
+        AGGR_APPROX_MEDIAN, // approx_median(expression)
+        AGGR_APPROX_PERCENTILE_CONT, // approx_percentile_cont(expression, percentile)
+        AGGR_APPROX_PERCENTILE_CONT2, // approx_percentile_cont(expression, percentile, centroids)
+        AGGR_APPROX_PERCENTILE_CONT_WITH_WEIGHT, // approx_percentile_cont_with_weight(expression, weight, percentile)
 
         // Array Aggregate functions
+
+        // Window Functions
+        WINDOW_RANK, // rank()
+        WINDOW_ROW_NUMBER, // row_number()
+        WINDOW_DENSE_RANK, // dense_rank()
+        WINDOW_NTILE, // ntile(2) - divides the partition into 2 groups
+        WINDOW_CUME_DIST, // cume_dist() - Relative rank of the current row: WINDOW(number of rows preceding or peer
+                          // with current row) / (total rows)
+        WINDOW_PERCENT_RANK, // percent_rank() - Relative rank of the current row:WINDOW (rank - 1) / (total rows - 1)
+        WINDOW_LAG1, // 1 arg version of lag(expression, offset, default) - Returns value from rows WINDOWbefore the
+                     // current row within the partition
+        WINDOW_LAG2, // 2 args version
+        WINDOW_LAG3, // 3 args version
+        WINDOW_LEAD1, // 1 arg version of lead(expression, offset, default) - Returns value from rows after the current
+                      // row within the partition
+        WINDOW_LEAD2, // 2 args version
+        WINDOW_LEAD3, // 3 args version
+        WINDOW_FIRST_VALUE, // first_value(expression) - Returns value from the first row of the window frame
+        WINDOW_LAST_VALUE, // last_value(expression) - Returns value from the last row of the window frame
+        WINDOW_NTH_VALUE, // nth_value(expression, n) - Returns value from the nth row of the window frame
+
     }
 
     /*

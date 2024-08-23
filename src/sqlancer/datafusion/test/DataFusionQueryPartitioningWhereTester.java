@@ -52,15 +52,13 @@ public class DataFusionQueryPartitioningWhereTester extends DataFusionQueryParti
             randomSelect.setOrderByClauses(gen.generateOrderBys());
         }
 
-        if (Randomly.getBoolean()) {
-            if (Randomly.getBoolean()) {
-                randomSelect.setGroupByClause(
-                        randomSelect.exprGenGroupBy.generateExpressions(state.getRandomly().getInteger(1, 3)));
-            }
+        if (Randomly.getBoolean() && Randomly.getBoolean()) {
+            randomSelect.setGroupByClause(
+                    randomSelect.exprGenGroupBy.generateExpressions(state.getRandomly().getInteger(1, 3)));
 
-            if (Randomly.getBoolean()) {
-                randomSelect.setHavingClause(randomSelect.exprGenGroupBy.generatePredicate());
-            }
+            // if (Randomly.getBoolean()) {
+            // randomSelect.setHavingClause(randomSelect.exprGenGroupBy.generatePredicate());
+            // }
         }
 
         String qString = "";

@@ -11,6 +11,7 @@ import sqlancer.datafusion.ast.DataFusionConstant;
 import sqlancer.datafusion.ast.DataFusionExpression;
 import sqlancer.datafusion.ast.DataFusionSelect;
 import sqlancer.datafusion.ast.DataFusionSelect.DataFusionFrom;
+import sqlancer.datafusion.ast.DataFusionWindowExpr;
 
 public class DataFusionToStringVisitor extends NewToStringVisitor<DataFusionExpression> {
 
@@ -34,6 +35,8 @@ public class DataFusionToStringVisitor extends NewToStringVisitor<DataFusionExpr
             visit((DataFusionSelect) expr);
         } else if (expr instanceof DataFusionFrom) {
             visit((DataFusionFrom) expr);
+        } else if (expr instanceof DataFusionWindowExpr) {
+            visit((DataFusionWindowExpr) expr);
         } else {
             throw new AssertionError(expr.getClass());
         }
@@ -132,6 +135,32 @@ public class DataFusionToStringVisitor extends NewToStringVisitor<DataFusionExpr
             sb.append(" OFFSET ");
             visit(select.getOffsetClause());
         }
+    }
+
+    private void visit(DataFusionWindowExpr window) {
+        // Window function
+        visit(window.windowFunc);
+
+        // Over clause
+        // -----------
+        sb.append(" OVER (");
+
+        if (!window.partitionByList.isEmpty()) {
+            sb.append("PARTITION BY ");
+            visit(window.partitionByList);
+        }
+
+        if (!window.orderByList.isEmpty()) {
+            sb.append(" ORDER BY ");
+            visit(window.orderByList);
+        }
+
+        if (window.frameClause.isPresent()) {
+            sb.append(" ");
+            sb.append(window.frameClause.get());
+        }
+
+        sb.append(")");
     }
 
 }

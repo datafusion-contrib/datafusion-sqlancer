@@ -39,6 +39,11 @@ public final class DataFusionErrors {
         errors.add("MedianAccumulator not supported for median");
         errors.add("Percentile value for 'APPROX_PERCENTILE_CONT' must be Float32 or Float64 literal");
         errors.add("digest max_size value for 'APPROX_PERCENTILE_CONT' must be UInt > 0 literal ");
+        errors.add("Aggregate can not be used as a sliding accumulator because `retract_batch` is not implemented");
+        errors.add("Arrow error: Invalid argument error: Invalid arithmetic operation: Utf8");
+        errors.add("There is only support Literal types for field at idx:");
+        errors.add("nth_value not supported for n:");
+        errors.add("Invalid argument error: Nested comparison: List(");
 
         /*
          * Known bugs
@@ -47,10 +52,12 @@ public final class DataFusionErrors {
         errors.add("bitwise"); // https://github.com/apache/datafusion/issues/11260
         errors.add("Sort expressions cannot be empty for streaming merge."); // https://github.com/apache/datafusion/issues/11561
         errors.add("compute_utf8_flag_op_scalar failed to cast literal value NULL for operation"); // https://github.com/apache/datafusion/issues/11623
-        errors.add("Schema error: No field named"); // https://github.com/apache/datafusion/issues/11635
-        errors.add("Min/Max accumulator not implemented for type Null."); // https://github.com/apache/datafusion/issues/11749
-        errors.add("APPROX_PERCENTILE_CONT_WITH_WEIGHT"); // TODO issue
-        errors.add("APPROX_MEDIAN"); // TODO issue
+        errors.add("Schema error: No field named "); // https://github.com/apache/datafusion/issues/12006
+        errors.add("Internal error: PhysicalExpr Column references column"); // https://github.com/apache/datafusion/issues/12012
+        errors.add("APPROX_"); // https://github.com/apache/datafusion/issues/12058
+        errors.add("External error: task"); // https://github.com/apache/datafusion/issues/12057
+        errors.add("NTH_VALUE"); // https://github.com/apache/datafusion/issues/12073
+        errors.add("SUBSTR"); // https://github.com/apache/datafusion/issues/12129
 
         /*
          * False positives
@@ -59,6 +66,7 @@ public final class DataFusionErrors {
         errors.add("Physical plan does not support logical expression AggregateFunction"); // False positive: when aggr
         // is generated in where
         // clause
+
         /*
          * Not critical, investigate in the future
          */
