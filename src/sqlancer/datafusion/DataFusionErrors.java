@@ -10,11 +10,14 @@ public final class DataFusionErrors {
     }
 
     /*
-     * During Oracle Checks, if ANY query returns one of the following error Then the current oracle check will be
-     * skipped. e.g.: NoREC Q1 -> throw an expected error NoREC Q2 -> succeed Since it's a known error, `SQLancer` will
+     * During Oracle Checks, if ANY query returns one of the following error Then
+     * the current oracle check will be
+     * skipped. e.g.: NoREC Q1 -> throw an expected error NoREC Q2 -> succeed Since
+     * it's a known error, `SQLancer` will
      * skip this check and don't report bug.
      *
-     * Note now it's implemented this way for simplicity This way might cause false negative, because Q1 and Q2 should
+     * Note now it's implemented this way for simplicity This way might cause false
+     * negative, because Q1 and Q2 should
      * both succeed or both fail TODO(datafusion): ensure both succeed or both fail
      */
     public static void registerExpectedExecutionErrors(ExpectedErrors errors) {
@@ -44,28 +47,28 @@ public final class DataFusionErrors {
         errors.add("There is only support Literal types for field at idx:");
         errors.add("nth_value not supported for n:");
         errors.add("Invalid argument error: Nested comparison: List(");
+        errors.add("This feature is not implemented: Percentile value for 'APPROX_PERCENTILE_CONT' must be a literal");
+        errors.add(
+                "This feature is not implemented: Tdigest max_size value for 'APPROX_PERCENTILE_CONT' must be a literal");
 
         /*
          * Known bugs
          */
-        errors.add("to type Int"); // https://github.com/apache/datafusion/issues/11249
         errors.add("bitwise"); // https://github.com/apache/datafusion/issues/11260
         errors.add("Sort expressions cannot be empty for streaming merge."); // https://github.com/apache/datafusion/issues/11561
-        errors.add("compute_utf8_flag_op_scalar failed to cast literal value NULL for operation"); // https://github.com/apache/datafusion/issues/11623
         errors.add("Schema error: No field named "); // https://github.com/apache/datafusion/issues/12006
-        errors.add("Internal error: PhysicalExpr Column references column"); // https://github.com/apache/datafusion/issues/12012
-        errors.add("APPROX_"); // https://github.com/apache/datafusion/issues/12058
-        errors.add("External error: task"); // https://github.com/apache/datafusion/issues/12057
-        errors.add("NTH_VALUE"); // https://github.com/apache/datafusion/issues/12073
-        errors.add("SUBSTR"); // https://github.com/apache/datafusion/issues/12129
+        // errors.add("regexp_is_match"); //
+        // https://github.com/apache/datafusion/issues/12180
+        errors.add("SUBSTR"); // https://github.com/apache/datafusion/issues/12699
 
         /*
          * False positives
          */
         errors.add("Cannot cast string"); // ifnull() is passed two non-compattable type and caused execution error
-        errors.add("Physical plan does not support logical expression AggregateFunction"); // False positive: when aggr
-        // is generated in where
-        // clause
+        // False positive: when aggr is generated in where clause
+        errors.add("Physical plan does not support logical expression AggregateFunction");
+        errors.add("Unsupported ArrowType Utf8View"); // Maybe bug in arrow flight
+        // jdbc driver
 
         /*
          * Not critical, investigate in the future
@@ -73,5 +76,8 @@ public final class DataFusionErrors {
         errors.add("does not match with the projection expression");
         errors.add("invalid operator for nested");
         errors.add("Arrow error: Cast error: Can't cast value");
+        errors.add("Nth value indices are 1 based");
+        errors.add("could not cast value to arrow_array:"); // https://github.com/apache/datafusion/issues/12150
+        errors.add("length not supported for Utf8View"); // https://github.com/apache/datafusion/issues/12149
     }
 }

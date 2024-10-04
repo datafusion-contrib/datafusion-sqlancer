@@ -7,11 +7,15 @@ import java.util.List;
 import sqlancer.Randomly;
 import sqlancer.common.ast.newast.NewToStringVisitor;
 import sqlancer.common.ast.newast.Node;
+import sqlancer.common.ast.newast.TableReferenceNode;
 import sqlancer.datafusion.ast.DataFusionConstant;
 import sqlancer.datafusion.ast.DataFusionExpression;
 import sqlancer.datafusion.ast.DataFusionSelect;
 import sqlancer.datafusion.ast.DataFusionSelect.DataFusionFrom;
+import sqlancer.datafusion.DataFusionSchema.DataFusionTable;
 import sqlancer.datafusion.ast.DataFusionWindowExpr;
+import sqlancer.datafusion.ast.DataFusionSpecialExpr.CastToStringView;
+import sqlancer.datafusion.ast.DataFusionSelect.DataFusionAlias;
 
 public class DataFusionToStringVisitor extends NewToStringVisitor<DataFusionExpression> {
 
@@ -37,6 +41,10 @@ public class DataFusionToStringVisitor extends NewToStringVisitor<DataFusionExpr
             visit((DataFusionFrom) expr);
         } else if (expr instanceof DataFusionWindowExpr) {
             visit((DataFusionWindowExpr) expr);
+        } else if (expr instanceof CastToStringView) {
+            visit((CastToStringView) expr);
+        } else if (expr instanceof DataFusionAlias) {
+            visit((DataFusionAlias) expr);
         } else {
             throw new AssertionError(expr.getClass());
         }
@@ -58,26 +66,26 @@ public class DataFusionToStringVisitor extends NewToStringVisitor<DataFusionExpr
         visit(from.tableList.get(0));
         for (int i = 0; i < from.joinConditionList.size(); i++) {
             switch (from.joinTypeList.get(i)) {
-            case INNER:
-                sb.append(Randomly.fromOptions(" JOIN ", " INNER JOIN "));
-                break;
-            case LEFT:
-                sb.append(Randomly.fromOptions(" LEFT JOIN ", " LEFT OUTER JOIN "));
-                break;
-            case RIGHT:
-                sb.append(Randomly.fromOptions(" RIGHT JOIN ", " RIGHT OUTER JOIN "));
-                break;
-            case FULL:
-                sb.append(Randomly.fromOptions(" FULL JOIN ", " FULL OUTER JOIN "));
-                break;
-            case CROSS:
-                sb.append(" CROSS JOIN ");
-                break;
-            case NATURAL:
-                sb.append(" NATURAL JOIN ");
-                break;
-            default:
-                dfAssert(false, "Unreachable");
+                case INNER:
+                    sb.append(Randomly.fromOptions(" JOIN ", " INNER JOIN "));
+                    break;
+                case LEFT:
+                    sb.append(Randomly.fromOptions(" LEFT JOIN ", " LEFT OUTER JOIN "));
+                    break;
+                case RIGHT:
+                    sb.append(Randomly.fromOptions(" RIGHT JOIN ", " RIGHT OUTER JOIN "));
+                    break;
+                case FULL:
+                    sb.append(Randomly.fromOptions(" FULL JOIN ", " FULL OUTER JOIN "));
+                    break;
+                case CROSS:
+                    sb.append(" CROSS JOIN ");
+                    break;
+                case NATURAL:
+                    sb.append(" NATURAL JOIN ");
+                    break;
+                default:
+                    dfAssert(false, "Unreachable");
             }
 
             visit(from.tableList.get(i + 1)); // ti
@@ -161,6 +169,32 @@ public class DataFusionToStringVisitor extends NewToStringVisitor<DataFusionExpr
         }
 
         sb.append(")");
+    }
+
+    private void visit(CastToStringView castToStringView) {
+        sb.append("ARROW_CAST(");
+        visit(castToStringView.expr);
+        sb.append(", 'Utf8')");
+    }
+
+    private void visit(DataFusionAlias alias) {
+        if (alias.table instanceof TableReferenceNode) {
+            DataFusionTable t = null;
+            if (alias.table instanceof TableReferenceNode) {
+                t = ((TableReferenceNode<DataFusionExpression, DataFusionTable>) alias.table).getTable();
+            } else {
+                dfAssert(false, "Unreachable");
+            }
+
+            String baseName = t.getNotAliasedName();
+            sb.append(baseName);
+
+            dfAssert(t.alias.isPresent(), "Alias should be present");
+            sb.append(" AS ");
+            sb.append(t.alias.get());
+        } else {
+            dfAssert(false, "Unreachable");
+        }
     }
 
 }

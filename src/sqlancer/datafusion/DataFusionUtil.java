@@ -34,7 +34,6 @@ public final class DataFusionUtil {
                 ResultSetMetaData metaData = wholeTable.getMetaData();
                 int columnCount = metaData.getColumnCount();
 
-                resultStringBuilder.append("Table: ").append(tableName).append("\n");
                 for (int i = 1; i <= columnCount; i++) {
                     resultStringBuilder.append(metaData.getColumnName(i)).append(" (")
                             .append(metaData.getColumnTypeName(i)).append(")");
@@ -58,7 +57,8 @@ public final class DataFusionUtil {
             } catch (SQLException err) {
                 resultStringBuilder.append("Table: ").append(tableName).append("\n");
                 resultStringBuilder.append("----------------------------------------\n\n");
-                // resultStringBuilder.append("Error retrieving data from table ").append(tableName).append(":
+                // resultStringBuilder.append("Error retrieving data from table
+                // ").append(tableName).append(":
                 // ").append(err.getMessage()).append("\n");
             }
         }
@@ -66,7 +66,8 @@ public final class DataFusionUtil {
         return resultStringBuilder.toString();
     }
 
-    // During development, you might want to manually let this function call exit(1) to fail fast
+    // During development, you might want to manually let this function call exit(1)
+    // to fail fast
     public static void dfAssert(boolean condition, String message) {
         if (!condition) {
             // Development mode assertion failure
@@ -117,7 +118,8 @@ public final class DataFusionUtil {
     }
 
     /*
-     * Extra logs stored in 'logs/datafusion_custom_log/' In case re-run overwrite previous logs
+     * Extra logs stored in 'logs/datafusion_custom_log/' In case re-run overwrite
+     * previous logs
      */
     public static class DataFusionLogger {
         private final DataFusionInstanceID dfID;
@@ -149,25 +151,25 @@ public final class DataFusionUtil {
             // Determine which log file to use based on the LogType
             String logLineHeader = "";
             switch (logType) {
-            case ERROR:
-                try {
-                    logFileWriter = new FileWriter(errorLogFile, true);
-                } catch (IOException e) {
-                    dfAssert(false, "Failed to create FileWriter for errorLogFIle");
-                }
-                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-                String formattedDateTime = LocalDateTime.now().format(formatter);
-                logLineHeader = "Run@" + formattedDateTime + " (" + dfID + ")\n";
-                break;
-            case DML:
-                logFileWriter = state.getLogger().getCurrentFileWriter();
-                logLineHeader = "/*DML*/";
-                break;
-            case SELECT:
-                logFileWriter = state.getLogger().getCurrentFileWriter();
-                break;
-            default:
-                dfAssert(false, "All branch should be covered");
+                case ERROR:
+                    try {
+                        logFileWriter = new FileWriter(errorLogFile, true);
+                    } catch (IOException e) {
+                        dfAssert(false, "Failed to create FileWriter for errorLogFIle");
+                    }
+                    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+                    String formattedDateTime = LocalDateTime.now().format(formatter);
+                    logLineHeader = "Run@" + formattedDateTime + " (" + dfID + ")\n";
+                    break;
+                case DML:
+                    logFileWriter = state.getLogger().getCurrentFileWriter();
+                    logLineHeader = "/*DML*/";
+                    break;
+                case SELECT:
+                    logFileWriter = state.getLogger().getCurrentFileWriter();
+                    break;
+                default:
+                    dfAssert(false, "All branch should be covered");
             }
 
             // Append content to the appropriate log file
@@ -198,11 +200,11 @@ public final class DataFusionUtil {
         }
 
         switch (value) {
-        case "-0.0":
-            return "0.0";
-        case "-0":
-            return "0";
-        default:
+            case "-0.0":
+                return "0.0";
+            case "-0":
+                return "0";
+            default:
         }
 
         if (value.getBytes().length > 7) {

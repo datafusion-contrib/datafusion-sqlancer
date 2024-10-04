@@ -10,6 +10,9 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.Optional;
+import java.util.regex.Pattern;
+import java.util.regex.Matcher;
 
 import sqlancer.Randomly;
 import sqlancer.SQLConnection;
@@ -32,6 +35,9 @@ public class DataFusionSchema extends AbstractSchema<DataFusionGlobalState, Data
 
     // update existing tables in DB by query again
     // (like `show tables;`)
+    //
+    // This function also setup table<->column reference pointers
+    // and equivalent tables(see `DataFusionTable.equivalentTables)
     public static DataFusionSchema fromConnection(SQLConnection con, String databaseName) throws SQLException {
         List<DataFusionTable> databaseTables = new ArrayList<>();
         List<String> tableNames = getTableNames(con);
@@ -45,6 +51,26 @@ public class DataFusionSchema extends AbstractSchema<DataFusionGlobalState, Data
             }
 
             databaseTables.add(t);
+        }
+
+        // Setup equivalent tables
+        // For example, now we have t1, t1_csv, t1_parquet, t2_csv, t2_parquet
+        // t1's equivalent tables: t1, t1_csv, t1_parquet
+        // t2_csv's equivalent tables: t2_csv, t2_parquet
+        // ...
+        //
+        // It can be assumed that:
+        // base table names are like t1, t2, ...
+        // equivalent tables are like t1_csv, t1_parquet, ...
+        for (DataFusionTable t : databaseTables) {
+            String baseTableName = t.getName().split("_")[0];
+            String patternString = "^" + baseTableName + "(_.*)?$"; // t1 or t1_*
+            Pattern pattern = Pattern.compile(patternString);
+
+            t.equivalentTables = databaseTables.stream()
+                    .filter(table -> pattern.matcher(table.getName()).matches())
+                    .map(DataFusionTable::getName)
+                    .collect(Collectors.toList());
         }
 
         return new DataFusionSchema(databaseTables);
@@ -84,7 +110,8 @@ public class DataFusionSchema extends AbstractSchema<DataFusionGlobalState, Data
     }
 
     /*
-     * When adding a new type: 1. Update all methods inside this enum 2. Update all `DataFusionBaseExpr`'s signature, if
+     * When adding a new type: 1. Update all methods inside this enum 2. Update all
+     * `DataFusionBaseExpr`'s signature, if
      * it can support new type (in `DataFusionBaseExprFactory.java`)
      *
      * Types are 'SQL DataType' in DataFusion's documentation
@@ -112,16 +139,18 @@ public class DataFusionSchema extends AbstractSchema<DataFusionGlobalState, Data
         // select table_name, column_name, data_type from information_schema.columns;
         public static DataFusionDataType parseFromDataFusionCatalog(String typeString) {
             switch (typeString) {
-            case "Int64":
-                return DataFusionDataType.BIGINT;
-            case "Float64":
-                return DataFusionDataType.DOUBLE;
-            case "Boolean":
-                return DataFusionDataType.BOOLEAN;
-            case "Utf8":
-                return DataFusionDataType.STRING;
-            default:
-                dfAssert(false, "Unreachable. All branches should be eovered");
+                case "Int64":
+                    return DataFusionDataType.BIGINT;
+                case "Float64":
+                    return DataFusionDataType.DOUBLE;
+                case "Boolean":
+                    return DataFusionDataType.BOOLEAN;
+                case "Utf8":
+                    return DataFusionDataType.STRING;
+                case "Utf8View":
+                    return DataFusionDataType.STRING;
+                default:
+                    dfAssert(false, "Uncovered branch typeString: " + typeString);
             }
 
             dfAssert(false, "Unreachable. All branches should be eovered");
@@ -134,31 +163,32 @@ public class DataFusionSchema extends AbstractSchema<DataFusionGlobalState, Data
                 return DataFusionConstant.createNullConstant();
             }
             switch (this) {
-            case BIGINT:
-                long randInt = Randomly.getBoolean() ? state.getRandomly().getInteger()
-                        : state.getRandomly().getInteger(-5, 5);
-                return DataFusionConstant.createIntConstant(randInt);
-            case BOOLEAN:
-                return new DataFusionConstant.DataFusionBooleanConstant(Randomly.getBoolean());
-            case DOUBLE:
-                if (Randomly.getBoolean()) {
+                case BIGINT:
+                    long randInt = Randomly.getBoolean() ? state.getRandomly().getInteger()
+                            : state.getRandomly().getInteger(-5, 5);
+                    return DataFusionConstant.createIntConstant(randInt);
+                case BOOLEAN:
+                    return new DataFusionConstant.DataFusionBooleanConstant(Randomly.getBoolean());
+                case DOUBLE:
                     if (Randomly.getBoolean()) {
-                        Double randomDouble = state.getRandomly().getDouble(); // [0.0, 1.0);
-                        Double scaledDouble = (randomDouble - 0.5) * 2 * Double.MAX_VALUE;
-                        return new DataFusionConstant.DataFusionDoubleConstant(scaledDouble);
+                        if (Randomly.getBoolean()) {
+                            Double randomDouble = state.getRandomly().getDouble(); // [0.0, 1.0);
+                            Double scaledDouble = (randomDouble - 0.5) * 2 * Double.MAX_VALUE;
+                            return new DataFusionConstant.DataFusionDoubleConstant(scaledDouble);
+                        }
+                        String doubleStr = Randomly.fromOptions("'NaN'::Double", "'+Inf'::Double", "'-Inf'::Double",
+                                "-0.0",
+                                "+0.0");
+                        return new DataFusionConstant.DataFusionDoubleConstant(doubleStr);
                     }
-                    String doubleStr = Randomly.fromOptions("'NaN'::Double", "'+Inf'::Double", "'-Inf'::Double", "-0.0",
-                            "+0.0");
-                    return new DataFusionConstant.DataFusionDoubleConstant(doubleStr);
-                }
 
-                return new DataFusionConstant.DataFusionDoubleConstant(state.getRandomly().getDouble());
-            case NULL:
-                return DataFusionConstant.createNullConstant();
-            case STRING:
-                return new DataFusionConstant.DataFusionStringConstant(state.getRandomly().getString());
-            default:
-                dfAssert(false, "Unreachable. All branches should be eovered");
+                    return new DataFusionConstant.DataFusionDoubleConstant(state.getRandomly().getDouble());
+                case NULL:
+                    return DataFusionConstant.createNullConstant();
+                case STRING:
+                    return new DataFusionConstant.DataFusionStringConstant(state.getRandomly().getString());
+                default:
+                    dfAssert(false, "Unreachable. All branches should be eovered");
             }
 
             dfAssert(false, "Unreachable. All branches should be eovered");
@@ -183,9 +213,55 @@ public class DataFusionSchema extends AbstractSchema<DataFusionGlobalState, Data
 
     public static class DataFusionTable
             extends AbstractRelationalTable<DataFusionColumn, TableIndex, DataFusionGlobalState> {
+        // There might exist multiple logically equivalent tables with
+        // different physical format.
+        // e.g. t1_csv, t1_parquet, ...
+        //
+        // When generating random query, it's possible to randomly pick one
+        // of them for stronger randomization.
+        public List<String> equivalentTables;
+
+        // Pick a random equivalent table name
+        // This can be used when generating differential queries
+        public Optional<String> currentEquivalentTableName;
+
+        // For example in query `select * from t1 as tt1, t1 as tt2`
+        // `tt1` is the alias for the first occurance of `t1`
+        public Optional<String> alias;
 
         public DataFusionTable(String tableName, List<DataFusionColumn> columns, boolean isView) {
             super(tableName, columns, Collections.emptyList(), isView);
+        }
+
+        public String getNotAliasedName() {
+            if (currentEquivalentTableName != null && currentEquivalentTableName.isPresent()) {
+                // In case setup is not done yet
+                return currentEquivalentTableName.get();
+            } else {
+                return super.getName();
+            }
+        }
+
+        // TODO(datafusion) Now implementation is hacky, should send a patch
+        // to core to support this
+        @Override
+        public String getName() {
+            // Before setup equivalent tables, we use the original table name
+            // Setup happens in `fromConnection()`
+            if (equivalentTables == null || currentEquivalentTableName == null) {
+                return super.getName();
+            }
+
+            if (alias.isPresent()) {
+                return alias.get();
+            } else {
+                return currentEquivalentTableName.get();
+            }
+        }
+
+        public void pickAnotherEquivalentTableName() {
+            dfAssert(!equivalentTables.isEmpty(), "equivalentTables should not be empty");
+            currentEquivalentTableName = Optional.of(Randomly.fromList(equivalentTables));
         }
 
         public static List<DataFusionColumn> getAllColumns(List<DataFusionTable> tables) {

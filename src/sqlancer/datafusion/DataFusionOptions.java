@@ -27,12 +27,12 @@ public class DataFusionOptions implements DBMSSpecificOptions<DataFusionOracleFa
     @Override
     public List<DataFusionOracleFactory> getTestOracleFactory() {
         return Arrays.asList(
-                // DataFusionOracleFactory.NO_CRASH_WINDOW,
-                // DataFusionOracleFactory.NO_CRASH_AGGREGATE,
-                DataFusionOracleFactory.NOREC, DataFusionOracleFactory.QUERY_PARTITIONING_WHERE
+                DataFusionOracleFactory.NO_CRASH_WINDOW,
+                DataFusionOracleFactory.NO_CRASH_AGGREGATE,
+                DataFusionOracleFactory.NOREC,
+                DataFusionOracleFactory.QUERY_PARTITIONING_WHERE);
         // DataFusionOracleFactory.QUERY_PARTITIONING_AGGREGATE
-        // ,DataFusionOracleFactory.QUERY_PARTITIONING_HAVING
-        );
+        // DataFusionOracleFactory.QUERY_PARTITIONING_HAVING);
     }
 
     public enum DataFusionOracleFactory implements OracleFactory<DataFusionGlobalState> {

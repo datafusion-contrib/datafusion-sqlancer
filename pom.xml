@@ -376,7 +376,7 @@
     <dependency>
       <groupId>org.apache.arrow</groupId>
       <artifactId>flight-sql-jdbc-driver</artifactId>
-      <version>16.1.0</version>
+      <version>17.0.0</version>
     </dependency>
   </dependencies>
   <reporting>

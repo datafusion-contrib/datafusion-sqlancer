@@ -17,7 +17,7 @@ use arrow_flight::{
 use arrow_schema::{DataType, Field, Schema};
 use dashmap::DashMap;
 use datafusion::logical_expr::LogicalPlan;
-use datafusion::prelude::{DataFrame, ParquetReadOptions, SessionConfig, SessionContext};
+use datafusion::prelude::{DataFrame, SessionConfig, SessionContext};
 use futures::{Stream, StreamExt, TryStreamExt};
 use log::info;
 use mimalloc::MiMalloc;
@@ -292,7 +292,7 @@ impl FlightSqlService for FlightSqlServiceImpl {
         let result = df
             .collect()
             .await
-            .map_err(|e| status!("Error executing query", e))?;
+            .map_err(|e| status!("Errorr executing query", e))?;
 
         // if we get an empty result, create an empty schema
         let schema = match result.first() {
@@ -400,6 +400,8 @@ impl FlightSqlService for FlightSqlServiceImpl {
             .and_then(|df| df.into_optimized_plan())
             .map_err(|e| Status::internal(format!("Error building plan: {e}")))?;
 
+        info!("Plan is {:#?}", plan);
+
         // store a copy of the plan,  it will be used for execution
         let plan_uuid = Uuid::new_v4().hyphenated().to_string();
         self.statements.insert(plan_uuid.clone(), plan.clone());
@@ -417,6 +419,7 @@ impl FlightSqlService for FlightSqlServiceImpl {
             dataset_schema: schema_bytes,
             parameter_schema: Default::default(),
         };
+        info!("do_action_create_prepared_statement SUCCEED!");
         Ok(res)
     }
 

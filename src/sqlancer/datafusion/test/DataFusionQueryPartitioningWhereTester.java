@@ -43,6 +43,7 @@ public class DataFusionQueryPartitioningWhereTester extends DataFusionQueryParti
         // generate a random 'SELECT [expr1] FROM [expr2] WHERE [expr3]
         super.check();
         DataFusionSelect randomSelect = select;
+        randomSelect.mutateEquivalentTableName();
 
         if (Randomly.getBoolean()) {
             randomSelect.distinct = true;
@@ -69,12 +70,15 @@ public class DataFusionQueryPartitioningWhereTester extends DataFusionQueryParti
             randomSelect.setWhereClause(null);
             qString = DataFusionToStringVisitor.asString(randomSelect);
 
+            randomSelect.mutateEquivalentTableName();
             randomSelect.setWhereClause(predicate);
             qp1String = DataFusionToStringVisitor.asString(randomSelect);
 
+            randomSelect.mutateEquivalentTableName();
             randomSelect.setWhereClause(negatedPredicate);
             qp2String = DataFusionToStringVisitor.asString(randomSelect);
 
+            randomSelect.mutateEquivalentTableName();
             randomSelect.setWhereClause(isNullPredicate);
             qp3String = DataFusionToStringVisitor.asString(randomSelect);
         } else {
@@ -111,6 +115,8 @@ public class DataFusionQueryPartitioningWhereTester extends DataFusionQueryParti
             /*
              * Run all queires
              */
+            // System.out.println("DBG TLP: " + qString + "\n" + qp1String + "\n" +
+            // qp2String + "\n" + qp3String);
             List<String> qResultSet = ComparatorHelper.getResultSetFirstColumnAsString(qString, errors, state);
             List<String> combinedString = new ArrayList<>();
             List<String> qpResultSet = ComparatorHelper.getCombinedResultSet(qp1String, qp2String, qp3String,
