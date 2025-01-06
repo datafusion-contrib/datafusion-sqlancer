@@ -109,5 +109,6 @@ public class DataFusionNoRECOracle extends NoRECBase<DataFusionGlobalState>
 
             throw new AssertionError("\n\n" + indentedErrorLog);
         }
+        // System.out.println("NOREC passed: \n" + q1String + "\n" + q2String);
     }
 }

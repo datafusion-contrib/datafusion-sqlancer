@@ -15,6 +15,7 @@ import sqlancer.datafusion.DataFusionProvider.DataFusionGlobalState;
 import sqlancer.datafusion.test.DataFusionNoCrashAggregate;
 import sqlancer.datafusion.test.DataFusionNoCrashWindow;
 import sqlancer.datafusion.test.DataFusionNoRECOracle;
+import sqlancer.datafusion.test.DataFusionPQS;
 import sqlancer.datafusion.test.DataFusionQueryPartitioningAggrTester;
 import sqlancer.datafusion.test.DataFusionQueryPartitioningHavingTester;
 import sqlancer.datafusion.test.DataFusionQueryPartitioningWhereTester;
@@ -26,10 +27,8 @@ public class DataFusionOptions implements DBMSSpecificOptions<DataFusionOracleFa
 
     @Override
     public List<DataFusionOracleFactory> getTestOracleFactory() {
-        return Arrays.asList(
-                DataFusionOracleFactory.NO_CRASH_WINDOW,
-                DataFusionOracleFactory.NO_CRASH_AGGREGATE,
-                DataFusionOracleFactory.NOREC,
+        return Arrays.asList(DataFusionOracleFactory.PQS, DataFusionOracleFactory.NO_CRASH_WINDOW,
+                DataFusionOracleFactory.NO_CRASH_AGGREGATE, DataFusionOracleFactory.NOREC,
                 DataFusionOracleFactory.QUERY_PARTITIONING_WHERE);
         // DataFusionOracleFactory.QUERY_PARTITIONING_AGGREGATE
         // DataFusionOracleFactory.QUERY_PARTITIONING_HAVING);
@@ -40,6 +39,12 @@ public class DataFusionOptions implements DBMSSpecificOptions<DataFusionOracleFa
             @Override
             public TestOracle<DataFusionGlobalState> create(DataFusionGlobalState globalState) throws SQLException {
                 return new DataFusionNoRECOracle(globalState);
+            }
+        },
+        PQS {
+            @Override
+            public TestOracle<DataFusionGlobalState> create(DataFusionGlobalState globalState) throws SQLException {
+                return new DataFusionPQS(globalState);
             }
         },
         QUERY_PARTITIONING_WHERE {

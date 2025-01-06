@@ -1,6 +1,5 @@
 package sqlancer.datafusion;
 
-import static sqlancer.datafusion.DataFusionUtil.DataFusionLogger.DataFusionLogType.DML;
 import static sqlancer.datafusion.DataFusionUtil.dfAssert;
 import static sqlancer.datafusion.DataFusionUtil.displayTables;
 
@@ -8,9 +7,9 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.stream.Collectors;
-import java.util.Optional;
 
 import com.google.auto.service.AutoService;
 
@@ -55,13 +54,13 @@ public class DataFusionProvider extends SQLProviderAdapter<DataFusionGlobalState
         // Create base tables
         // ============================
 
-        int tableCount = Randomly.fromOptions(1, 2, 3, 4, 5, 6, 7);
+        int tableCount = Randomly.fromOptions(1, 2, 3, 4);
         for (int i = 0; i < tableCount; i++) {
-            SQLQueryAdapter queryCreateRandomTable = new DataFusionTableGenerator()
-                    .getCreateStmt(globalState);
+            SQLQueryAdapter queryCreateRandomTable = new DataFusionTableGenerator().getCreateStmt(globalState);
             queryCreateRandomTable.execute(globalState);
             globalState.updateSchema();
-            globalState.dfLogger.appendToLog(DML, queryCreateRandomTable.toString() + "\n");
+            globalState.dfLogger.appendToLog(DataFusionLogger.DataFusionLogType.DML,
+                    queryCreateRandomTable.toString() + "\n");
         }
 
         // Now only `INSERT` DML is supported
@@ -73,8 +72,7 @@ public class DataFusionProvider extends SQLProviderAdapter<DataFusionGlobalState
 
         globalState.updateSchema();
         List<DataFusionTable> allBaseTables = globalState.getSchema().getDatabaseTables();
-        List<String> allBaseTablesName = allBaseTables.stream()
-                .map(DataFusionTable::getName)
+        List<String> allBaseTablesName = allBaseTables.stream().map(DataFusionTable::getName)
                 .collect(Collectors.toList());
         if (allBaseTablesName.isEmpty()) {
             dfAssert(false, "Generate Database failed.");
@@ -94,7 +92,7 @@ public class DataFusionProvider extends SQLProviderAdapter<DataFusionGlobalState
                 }
 
                 insertQuery.execute(globalState);
-                globalState.dfLogger.appendToLog(DML, insertQuery.toString() + "\n");
+                globalState.dfLogger.appendToLog(DataFusionLogger.DataFusionLogType.DML, insertQuery.toString() + "\n");
             }
         }
 
@@ -105,7 +103,8 @@ public class DataFusionProvider extends SQLProviderAdapter<DataFusionGlobalState
                     .createStringViewTable(globalState, table);
             if (queryCreateStringViewTable.isPresent()) {
                 queryCreateStringViewTable.get().execute(globalState);
-                globalState.dfLogger.appendToLog(DML, queryCreateStringViewTable.get().toString() + "\n");
+                globalState.dfLogger.appendToLog(DataFusionLogger.DataFusionLogType.DML,
+                        queryCreateStringViewTable.get().toString() + "\n");
             }
         }
         globalState.updateSchema();

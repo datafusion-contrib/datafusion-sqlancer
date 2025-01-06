@@ -118,8 +118,7 @@ public final class DataFusionUtil {
     }
 
     /*
-     * Extra logs stored in 'logs/datafusion_custom_log/' In case re-run overwrite
-     * previous logs
+     * Extra logs stored in 'logs/datafusion_custom_log/' In case re-run overwrite previous logs
      */
     public static class DataFusionLogger {
         private final DataFusionInstanceID dfID;
@@ -151,25 +150,25 @@ public final class DataFusionUtil {
             // Determine which log file to use based on the LogType
             String logLineHeader = "";
             switch (logType) {
-                case ERROR:
-                    try {
-                        logFileWriter = new FileWriter(errorLogFile, true);
-                    } catch (IOException e) {
-                        dfAssert(false, "Failed to create FileWriter for errorLogFIle");
-                    }
-                    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-                    String formattedDateTime = LocalDateTime.now().format(formatter);
-                    logLineHeader = "Run@" + formattedDateTime + " (" + dfID + ")\n";
-                    break;
-                case DML:
-                    logFileWriter = state.getLogger().getCurrentFileWriter();
-                    logLineHeader = "/*DML*/";
-                    break;
-                case SELECT:
-                    logFileWriter = state.getLogger().getCurrentFileWriter();
-                    break;
-                default:
-                    dfAssert(false, "All branch should be covered");
+            case ERROR:
+                try {
+                    logFileWriter = new FileWriter(errorLogFile, true);
+                } catch (IOException e) {
+                    dfAssert(false, "Failed to create FileWriter for errorLogFIle");
+                }
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+                String formattedDateTime = LocalDateTime.now().format(formatter);
+                logLineHeader = "Run@" + formattedDateTime + " (" + dfID + ")\n";
+                break;
+            case DML:
+                logFileWriter = state.getLogger().getCurrentFileWriter();
+                logLineHeader = "/*DML*/";
+                break;
+            case SELECT:
+                logFileWriter = state.getLogger().getCurrentFileWriter();
+                break;
+            default:
+                dfAssert(false, "All branch should be covered");
             }
 
             // Append content to the appropriate log file
@@ -200,11 +199,11 @@ public final class DataFusionUtil {
         }
 
         switch (value) {
-            case "-0.0":
-                return "0.0";
-            case "-0":
-                return "0";
-            default:
+        case "-0.0":
+            return "0.0";
+        case "-0":
+            return "0";
+        default:
         }
 
         if (value.getBytes().length > 7) {

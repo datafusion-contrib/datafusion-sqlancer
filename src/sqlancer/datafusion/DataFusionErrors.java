@@ -10,14 +10,11 @@ public final class DataFusionErrors {
     }
 
     /*
-     * During Oracle Checks, if ANY query returns one of the following error Then
-     * the current oracle check will be
-     * skipped. e.g.: NoREC Q1 -> throw an expected error NoREC Q2 -> succeed Since
-     * it's a known error, `SQLancer` will
+     * During Oracle Checks, if ANY query returns one of the following error Then the current oracle check will be
+     * skipped. e.g.: NoREC Q1 -> throw an expected error NoREC Q2 -> succeed Since it's a known error, `SQLancer` will
      * skip this check and don't report bug.
      *
-     * Note now it's implemented this way for simplicity This way might cause false
-     * negative, because Q1 and Q2 should
+     * Note now it's implemented this way for simplicity This way might cause false negative, because Q1 and Q2 should
      * both succeed or both fail TODO(datafusion): ensure both succeed or both fail
      */
     public static void registerExpectedExecutionErrors(ExpectedErrors errors) {
@@ -57,9 +54,7 @@ public final class DataFusionErrors {
         errors.add("bitwise"); // https://github.com/apache/datafusion/issues/11260
         errors.add("Sort expressions cannot be empty for streaming merge."); // https://github.com/apache/datafusion/issues/11561
         errors.add("Schema error: No field named "); // https://github.com/apache/datafusion/issues/12006
-        // errors.add("regexp_is_match"); //
-        // https://github.com/apache/datafusion/issues/12180
-        errors.add("SUBSTR"); // https://github.com/apache/datafusion/issues/12699
+        errors.add("NATURAL JOIN"); // https://github.com/apache/datafusion/issues/14015
 
         /*
          * False positives
@@ -77,7 +72,15 @@ public final class DataFusionErrors {
         errors.add("invalid operator for nested");
         errors.add("Arrow error: Cast error: Can't cast value");
         errors.add("Nth value indices are 1 based");
-        errors.add("could not cast value to arrow_array:"); // https://github.com/apache/datafusion/issues/12150
-        errors.add("length not supported for Utf8View"); // https://github.com/apache/datafusion/issues/12149
+        /*
+         * Example query that triggers this error: create table t1(v1 int, v2 bool); select v1, sum(1) over (partition
+         * by v1 order by v2 range between 0 preceding and 0 following) from t1;
+         *
+         * Current error message: Arrow error: Invalid argument error: Invalid arithmetic operation: Boolean - Boolean
+         *
+         * TODO: The error message could be more meaningful to indicate that RANGE frame is not supported for boolean
+         * ORDER BY columns
+         */
+        errors.add("Invalid arithmetic operation");
     }
 }

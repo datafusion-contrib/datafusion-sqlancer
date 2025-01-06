@@ -27,6 +27,10 @@ public class DataFusionSelect extends SelectBase<Node<DataFusionExpression>> imp
     // `from` is used to represent from table list and join clause
     // `fromList` and `joinList` in base class should always be empty
     public DataFusionFrom from;
+    // Randomly selected table (equivalent to `from.tableList`)
+    // Can be refactored, it's a hack for now
+    public List<DataFusionTable> tableList;
+
     // e.g. let's say all colummns are {c1, c2, c3, c4, c5}
     // First randomly pick a subset say {c2, c1, c3, c4}
     // `exprGenAll` can generate random expr using above 4 columns
@@ -63,14 +67,20 @@ public class DataFusionSelect extends SelectBase<Node<DataFusionExpression>> imp
     // - joinTypeList -> {INNER, LEFT}
     // - joinConditionList -> {[expr_with_t1_t2], [expr_with_t1_t2_t3]}
     public static class DataFusionFrom implements Node<DataFusionExpression> {
-        public List<Node<DataFusionExpression>> tableList;
+        public List<Node<DataFusionExpression>> tableExprList;
         public List<JoinType> joinTypeList;
         public List<Node<DataFusionExpression>> joinConditionList;
 
         public DataFusionFrom() {
-            tableList = new ArrayList<>();
+            tableExprList = new ArrayList<>();
             joinTypeList = new ArrayList<>();
             joinConditionList = new ArrayList<>();
+        }
+
+        public DataFusionFrom(List<DataFusionTable> tables) {
+            this();
+            tableExprList = tables.stream().map(t -> new TableReferenceNode<DataFusionExpression, DataFusionTable>(t))
+                    .map(tableExpr -> new DataFusionAliasedTable(tableExpr)).collect(Collectors.toList());
         }
 
         public boolean isExplicitJoin() {
@@ -93,7 +103,7 @@ public class DataFusionSelect extends SelectBase<Node<DataFusionExpression>> imp
             List<Node<DataFusionExpression>> randomTableNodes = randomTables.stream()
                     .map(t -> new TableReferenceNode<DataFusionExpression, DataFusionTable>(t))
                     .collect(Collectors.toList());
-            fromClause.tableList = randomTableNodes;
+            fromClause.tableExprList = randomTableNodes;
 
             /* If JoinConditionList is empty, FromClause will be interpreted as from list */
             if (Randomly.getBoolean() && Randomly.getBoolean()) {
@@ -149,10 +159,12 @@ public class DataFusionSelect extends SelectBase<Node<DataFusionExpression>> imp
         }
 
         public void setupAlias() {
-            for (int i = 0; i < tableList.size(); i++) {
-                if (tableList.get(i) instanceof TableReferenceNode) {
-                    ((TableReferenceNode<DataFusionExpression, DataFusionTable>) tableList.get(i))
-                            .getTable().alias = Optional.of("tt" + i);
+            for (int i = 0; i < tableExprList.size(); i++) {
+                if (tableExprList.get(i) instanceof TableReferenceNode) {
+                    @SuppressWarnings("unchecked") // Suppress the unchecked cast warning
+                    TableReferenceNode<DataFusionExpression, DataFusionTable> node = (TableReferenceNode<DataFusionExpression, DataFusionTable>) tableExprList
+                            .get(i);
+                    node.getTable().alias = Optional.of("tt" + i);
                 } else {
                     dfAssert(false, "Expected all items in tableList to be TableReferenceNode instances");
                 }
@@ -160,10 +172,10 @@ public class DataFusionSelect extends SelectBase<Node<DataFusionExpression>> imp
 
             // wrap table in `DataFusionAlias` for display
             List<Node<DataFusionExpression>> wrappedTables = new ArrayList<>();
-            for (Node<DataFusionExpression> table : tableList) {
-                wrappedTables.add(new DataFusionAlias(table));
+            for (Node<DataFusionExpression> table : tableExprList) {
+                wrappedTables.add(new DataFusionAliasedTable(table));
             }
-            tableList = wrappedTables;
+            tableExprList = wrappedTables;
         }
 
     }
@@ -173,24 +185,18 @@ public class DataFusionSelect extends SelectBase<Node<DataFusionExpression>> imp
     // The randomly mutated query looks like:
     // select * from t1_csv, t2, t3_parquet
     public void mutateEquivalentTableName() {
-        for (Node<DataFusionExpression> table : from.tableList) {
-            if (table instanceof DataFusionAlias) {
-                Node<DataFusionExpression> aliasedTable = ((DataFusionAlias) table).table;
+        for (Node<DataFusionExpression> table : from.tableExprList) {
+            if (table instanceof DataFusionAliasedTable) {
+                Node<DataFusionExpression> aliasedTable = ((DataFusionAliasedTable) table).table;
 
                 if (aliasedTable instanceof TableReferenceNode) {
-                    ((TableReferenceNode<DataFusionExpression, DataFusionTable>) aliasedTable).getTable()
-                            .pickAnotherEquivalentTableName();
+                    @SuppressWarnings("unchecked") // Suppress the unchecked cast warning
+                    TableReferenceNode<DataFusionExpression, DataFusionTable> tableRef = (TableReferenceNode<DataFusionExpression, DataFusionTable>) aliasedTable;
+                    tableRef.getTable().pickAnotherEquivalentTableName();
                 } else {
                     dfAssert(false, "Expected all items in tableList to be TableReferenceNode instances");
                 }
             } else {
-                // I want to print the exact type of table
-                System.out.println("DBG mutateEquivalentTableName: " + table.getClass().getName());
-                try {
-                    throw new RuntimeException("DBG mutateEquivalentTableName");
-                } catch (RuntimeException e) {
-                    e.printStackTrace();
-                }
                 dfAssert(false, "Expected all items in tableList to be TableReferenceNode instances");
             }
         }
@@ -203,11 +209,12 @@ public class DataFusionSelect extends SelectBase<Node<DataFusionExpression>> imp
     // and print it as 't1 as tt1'
     // If the same table is in expressions, don't use the wrapper and print it as
     // 'tt1'
-    public static class DataFusionAlias implements Node<DataFusionExpression> {
+    public static class DataFusionAliasedTable implements Node<DataFusionExpression> {
         public Node<DataFusionExpression> table;
 
-        public DataFusionAlias(Node<DataFusionExpression> table) {
+        public DataFusionAliasedTable(Node<DataFusionExpression> table) {
             dfAssert(table instanceof TableReferenceNode, "Expected table reference node");
+            @SuppressWarnings("unchecked") // Suppress the unchecked cast warning
             DataFusionTable t = ((TableReferenceNode<DataFusionExpression, DataFusionTable>) table).getTable();
             dfAssert(t.alias.isPresent(), "Expected table to have alias");
 
@@ -254,6 +261,7 @@ public class DataFusionSelect extends SelectBase<Node<DataFusionExpression>> imp
             randomTables = randomTables.subList(0, maxSize);
         }
         DataFusionFrom randomFrom = DataFusionFrom.generateFromClause(state, randomTables);
+        randomSelect.tableList = randomTables;
 
         /* Setup expression generators (to generate different clauses) */
         List<DataFusionColumn> randomColumnsAll = DataFusionTable.getRandomColumns(randomTables);
@@ -272,19 +280,15 @@ public class DataFusionSelect extends SelectBase<Node<DataFusionExpression>> imp
                 .generateExpression(DataFusionSchema.DataFusionDataType.BOOLEAN);
 
         /* Constructing result */
-        List<Node<DataFusionExpression>> randomColumnNodes = randomColumnsAll.stream()
-                .map((c) -> {
-                    if (c.getType() == DataFusionSchema.DataFusionDataType.STRING) {
-                        Node<DataFusionExpression> colRef = new ColumnReferenceNode<DataFusionExpression, DataFusionColumn>(
-                                c);
-                        Node<DataFusionExpression> castedColRef = new DataFusionSpecialExpr.CastToStringView(colRef);
+        List<Node<DataFusionExpression>> randomColumnNodes = randomColumnsAll.stream().map((c) -> {
+            if (c.getType() == DataFusionSchema.DataFusionDataType.STRING) {
+                Node<DataFusionExpression> colRef = new ColumnReferenceNode<DataFusionExpression, DataFusionColumn>(c);
+                return new DataFusionSpecialExpr.CastToStringView(colRef);
 
-                        return castedColRef;
-                    } else {
-                        return new ColumnReferenceNode<DataFusionExpression, DataFusionColumn>(c);
-                    }
-                })
-                .collect(Collectors.toList());
+            } else {
+                return new ColumnReferenceNode<DataFusionExpression, DataFusionColumn>(c);
+            }
+        }).collect(Collectors.toList());
 
         randomSelect.setFetchColumns(randomColumnNodes); // TODO(datafusion) make it more random like 'select *'
         randomSelect.from = randomFrom;
@@ -335,12 +339,10 @@ public class DataFusionSelect extends SelectBase<Node<DataFusionExpression>> imp
     }
 
     /*
-     * If set fetch columns with string It will override `fetchColumns` in base
-     * class when
+     * If set fetch columns with string It will override `fetchColumns` in base class when
      * `DataFusionToStringVisitor.asString()` is called
      *
-     * This method can be helpful to mutate select in oracle checks: SELECT [expr]
-     * ... -> SELECT SUM[expr]
+     * This method can be helpful to mutate select in oracle checks: SELECT [expr] ... -> SELECT SUM[expr]
      */
     public void setFetchColumnsString(String selectExpr) {
         this.fetchColumnsString = Optional.of(selectExpr);

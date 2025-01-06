@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import sqlancer.ComparatorHelper;
+import sqlancer.IgnoreMeException;
 import sqlancer.Randomly;
 import sqlancer.common.ast.newast.NewBinaryOperatorNode;
 import sqlancer.common.ast.newast.Node;
@@ -127,6 +128,13 @@ public class DataFusionQueryPartitioningWhereTester extends DataFusionQueryParti
             ComparatorHelper.assumeResultSetsAreEqual(qResultSet, qpResultSet, qString, combinedString, state,
                     ComparatorHelper::canonicalizeResultValue);
         } catch (AssertionError e) {
+            // whitelist
+            // ---------
+            // https://github.com/apache/datafusion/issues/12468
+            if (qp1String.contains("NATURAL JOIN")) {
+                throw new IgnoreMeException();
+            }
+
             // Append more error message
             String replay = DataFusionUtil.getReplay(state.getDatabaseName());
             String newMessage = e.getMessage() + "\n" + e.getCause() + "\n" + replay + "\n";

@@ -707,13 +707,9 @@ public final class Main {
     }
 
     /**
-     * To register a new provider, it is necessary to implement the DatabaseProvider
-     * interface and add an additional
-     * configuration file, see
-     * https://docs.oracle.com/javase/9/docs/api/java/util/ServiceLoader.html.
-     * Currently, we use
-     * an @AutoService annotation to create the configuration file automatically.
-     * This allows SQLancer to pick up
+     * To register a new provider, it is necessary to implement the DatabaseProvider interface and add an additional
+     * configuration file, see https://docs.oracle.com/javase/9/docs/api/java/util/ServiceLoader.html. Currently, we use
+     * an @AutoService annotation to create the configuration file automatically. This allows SQLancer to pick up
      * providers in other JARs on the classpath.
      *
      * @return The list of service providers on the classpath
@@ -763,8 +759,7 @@ public final class Main {
     private static synchronized void startProgressMonitor() {
         if (progressMonitorStarted) {
             /*
-             * it might be already started if, for example, the main method is called
-             * multiple times in a test (see
+             * it might be already started if, for example, the main method is called multiple times in a test (see
              * https://github.com/sqlancer/sqlancer/issues/90).
              */
             return;

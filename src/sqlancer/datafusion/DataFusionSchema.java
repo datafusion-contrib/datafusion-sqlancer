@@ -9,10 +9,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 import java.util.Optional;
 import java.util.regex.Pattern;
-import java.util.regex.Matcher;
+import java.util.stream.Collectors;
 
 import sqlancer.Randomly;
 import sqlancer.SQLConnection;
@@ -67,10 +66,8 @@ public class DataFusionSchema extends AbstractSchema<DataFusionGlobalState, Data
             String patternString = "^" + baseTableName + "(_.*)?$"; // t1 or t1_*
             Pattern pattern = Pattern.compile(patternString);
 
-            t.equivalentTables = databaseTables.stream()
-                    .filter(table -> pattern.matcher(table.getName()).matches())
-                    .map(DataFusionTable::getName)
-                    .collect(Collectors.toList());
+            t.equivalentTables = databaseTables.stream().filter(table -> pattern.matcher(table.getName()).matches())
+                    .map(DataFusionTable::getName).collect(Collectors.toList());
         }
 
         return new DataFusionSchema(databaseTables);
@@ -110,8 +107,7 @@ public class DataFusionSchema extends AbstractSchema<DataFusionGlobalState, Data
     }
 
     /*
-     * When adding a new type: 1. Update all methods inside this enum 2. Update all
-     * `DataFusionBaseExpr`'s signature, if
+     * When adding a new type: 1. Update all methods inside this enum 2. Update all `DataFusionBaseExpr`'s signature, if
      * it can support new type (in `DataFusionBaseExprFactory.java`)
      *
      * Types are 'SQL DataType' in DataFusion's documentation
@@ -139,18 +135,18 @@ public class DataFusionSchema extends AbstractSchema<DataFusionGlobalState, Data
         // select table_name, column_name, data_type from information_schema.columns;
         public static DataFusionDataType parseFromDataFusionCatalog(String typeString) {
             switch (typeString) {
-                case "Int64":
-                    return DataFusionDataType.BIGINT;
-                case "Float64":
-                    return DataFusionDataType.DOUBLE;
-                case "Boolean":
-                    return DataFusionDataType.BOOLEAN;
-                case "Utf8":
-                    return DataFusionDataType.STRING;
-                case "Utf8View":
-                    return DataFusionDataType.STRING;
-                default:
-                    dfAssert(false, "Uncovered branch typeString: " + typeString);
+            case "Int64":
+                return DataFusionDataType.BIGINT;
+            case "Float64":
+                return DataFusionDataType.DOUBLE;
+            case "Boolean":
+                return DataFusionDataType.BOOLEAN;
+            case "Utf8":
+                return DataFusionDataType.STRING;
+            case "Utf8View":
+                return DataFusionDataType.STRING;
+            default:
+                dfAssert(false, "Uncovered branch typeString: " + typeString);
             }
 
             dfAssert(false, "Unreachable. All branches should be eovered");
@@ -163,32 +159,31 @@ public class DataFusionSchema extends AbstractSchema<DataFusionGlobalState, Data
                 return DataFusionConstant.createNullConstant();
             }
             switch (this) {
-                case BIGINT:
-                    long randInt = Randomly.getBoolean() ? state.getRandomly().getInteger()
-                            : state.getRandomly().getInteger(-5, 5);
-                    return DataFusionConstant.createIntConstant(randInt);
-                case BOOLEAN:
-                    return new DataFusionConstant.DataFusionBooleanConstant(Randomly.getBoolean());
-                case DOUBLE:
+            case BIGINT:
+                long randInt = Randomly.getBoolean() ? state.getRandomly().getInteger()
+                        : state.getRandomly().getInteger(-5, 5);
+                return DataFusionConstant.createIntConstant(randInt);
+            case BOOLEAN:
+                return new DataFusionConstant.DataFusionBooleanConstant(Randomly.getBoolean());
+            case DOUBLE:
+                if (Randomly.getBoolean()) {
                     if (Randomly.getBoolean()) {
-                        if (Randomly.getBoolean()) {
-                            Double randomDouble = state.getRandomly().getDouble(); // [0.0, 1.0);
-                            Double scaledDouble = (randomDouble - 0.5) * 2 * Double.MAX_VALUE;
-                            return new DataFusionConstant.DataFusionDoubleConstant(scaledDouble);
-                        }
-                        String doubleStr = Randomly.fromOptions("'NaN'::Double", "'+Inf'::Double", "'-Inf'::Double",
-                                "-0.0",
-                                "+0.0");
-                        return new DataFusionConstant.DataFusionDoubleConstant(doubleStr);
+                        Double randomDouble = state.getRandomly().getDouble(); // [0.0, 1.0);
+                        Double scaledDouble = (randomDouble - 0.5) * 2 * Double.MAX_VALUE;
+                        return new DataFusionConstant.DataFusionDoubleConstant(scaledDouble);
                     }
+                    String doubleStr = Randomly.fromOptions("'NaN'::Double", "'+Inf'::Double", "'-Inf'::Double", "-0.0",
+                            "+0.0");
+                    return new DataFusionConstant.DataFusionDoubleConstant(doubleStr);
+                }
 
-                    return new DataFusionConstant.DataFusionDoubleConstant(state.getRandomly().getDouble());
-                case NULL:
-                    return DataFusionConstant.createNullConstant();
-                case STRING:
-                    return new DataFusionConstant.DataFusionStringConstant(state.getRandomly().getString());
-                default:
-                    dfAssert(false, "Unreachable. All branches should be eovered");
+                return new DataFusionConstant.DataFusionDoubleConstant(state.getRandomly().getDouble());
+            case NULL:
+                return DataFusionConstant.createNullConstant();
+            case STRING:
+                return new DataFusionConstant.DataFusionStringConstant(state.getRandomly().getString());
+            default:
+                dfAssert(false, "Unreachable. All branches should be eovered");
             }
 
             dfAssert(false, "Unreachable. All branches should be eovered");
@@ -199,16 +194,34 @@ public class DataFusionSchema extends AbstractSchema<DataFusionGlobalState, Data
     public static class DataFusionColumn extends AbstractTableColumn<DataFusionTable, DataFusionDataType> {
 
         private final boolean isNullable;
+        public Optional<String> alias;
 
         public DataFusionColumn(String name, DataFusionDataType columnType, boolean isNullable) {
             super(name, null, columnType);
             this.isNullable = isNullable;
+            this.alias = Optional.empty();
         }
 
         public boolean isNullable() {
             return isNullable;
         }
 
+        public String getOrignalName() {
+            return getTable().getName() + "." + getName();
+        }
+
+        @Override
+        public String getFullQualifiedName() {
+            if (getTable() == null) {
+                return getName();
+            } else {
+                if (alias.isPresent()) {
+                    return alias.get();
+                } else {
+                    return getTable().getName() + "." + getName();
+                }
+            }
+        }
     }
 
     public static class DataFusionTable

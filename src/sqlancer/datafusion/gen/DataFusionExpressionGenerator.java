@@ -55,7 +55,8 @@ public final class DataFusionExpressionGenerator
         return true;
     }
 
-    // If target expr type is numeric, when `supportAggregate`, make it more likely to generate aggregate functions
+    // If target expr type is numeric, when `supportAggregate`, make it more likely
+    // to generate aggregate functions
     // Since randomly generated expressions are nested:
     // For window/aggregate case, we want only outer layer to be window/aggr
     // to make it more likely to generate valid query
@@ -82,7 +83,8 @@ public final class DataFusionExpressionGenerator
     }
 
     // By default all possible non-aggregate expressions
-    // To generate aggregate functions: set this.supportAggregate to `true`, generate exprs, and reset.
+    // To generate aggregate functions: set this.supportAggregate to `true`,
+    // generate exprs, and reset.
     @Override
     protected Node<DataFusionExpression> generateExpression(DataFusionDataType type, int depth) {
         if (depth >= globalState.getOptions().getMaxExpressionDepth() || Randomly.getBoolean()) {
@@ -103,7 +105,8 @@ public final class DataFusionExpressionGenerator
 
         DataFusionBaseExpr randomExpr = Randomly.fromList(possibleBaseExprs);
 
-        // if (randomExpr.exprType == DataFusionBaseExprCategory.AGGREGATE || randomExpr.exprType ==
+        // if (randomExpr.exprType == DataFusionBaseExprCategory.AGGREGATE ||
+        // randomExpr.exprType ==
         // DataFusionBaseExprCategory.WINDOW) {
         // if (depth == 0) {
         // System.out.println("DBG depth 0");
@@ -143,7 +146,8 @@ public final class DataFusionExpressionGenerator
         case BINARY:
             dfAssert(randomExpr.argTypes.size() == 2 && randomExpr.nArgs == 2,
                     "Binrary expression should only have 2 argument" + randomExpr.argTypes);
-            List<DataFusionDataType> argTypeList = new ArrayList<>(); // types of current expression's input arguments
+            List<DataFusionDataType> argTypeList = new ArrayList<>(); // types of current expression's input
+                                                                      // arguments
             for (ArgumentType argumentType : randomExpr.argTypes) {
                 if (argumentType instanceof ArgumentType.Fixed) {
                     ArgumentType.Fixed possibleArgTypes = (ArgumentType.Fixed) randomExpr.argTypes.get(0);
@@ -333,13 +337,15 @@ public final class DataFusionExpressionGenerator
         return new NewUnaryPostfixOperatorNode<>(expr, createExpr(DataFusionBaseExprType.IS_NULL));
     }
 
-    // TODO(datafusion) refactor: make single generate aware of group by and aggr columns, and it can directly generate
+    // TODO(datafusion) refactor: make single generate aware of group by and aggr
+    // columns, and it can directly generate
     // having clause
     // Try best to generate a valid having clause
     //
     // Suppose query "... group by a, b ..."
     // and all available columns are "a, b, c, d"
-    // then a valid having clause can have expr of {a, b}, and expr of aggregation of {c, d}
+    // then a valid having clause can have expr of {a, b}, and expr of aggregation
+    // of {c, d}
     // e.g. "having a=b and avg(c) > avg(d)"
     //
     // `groupbyGen` can generate expression only with group by cols

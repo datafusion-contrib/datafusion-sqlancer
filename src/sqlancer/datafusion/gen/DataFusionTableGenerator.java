@@ -1,13 +1,14 @@
 package sqlancer.datafusion.gen;
 
 import java.util.Optional;
+
 import sqlancer.Randomly;
 import sqlancer.common.query.ExpectedErrors;
 import sqlancer.common.query.SQLQueryAdapter;
 import sqlancer.datafusion.DataFusionProvider.DataFusionGlobalState;
+import sqlancer.datafusion.DataFusionSchema.DataFusionColumn;
 import sqlancer.datafusion.DataFusionSchema.DataFusionDataType;
 import sqlancer.datafusion.DataFusionSchema.DataFusionTable;
-import sqlancer.datafusion.DataFusionSchema.DataFusionColumn;
 
 public class DataFusionTableGenerator {
 
