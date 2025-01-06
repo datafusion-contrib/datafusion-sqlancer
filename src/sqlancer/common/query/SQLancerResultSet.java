@@ -6,7 +6,7 @@ import java.sql.SQLException;
 
 public class SQLancerResultSet implements Closeable {
 
-    ResultSet rs;
+    public ResultSet rs;
     private Runnable runnableEpilogue;
 
     public SQLancerResultSet(ResultSet rs) {

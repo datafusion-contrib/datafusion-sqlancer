@@ -34,7 +34,6 @@ public final class DataFusionUtil {
                 ResultSetMetaData metaData = wholeTable.getMetaData();
                 int columnCount = metaData.getColumnCount();
 
-                resultStringBuilder.append("Table: ").append(tableName).append("\n");
                 for (int i = 1; i <= columnCount; i++) {
                     resultStringBuilder.append(metaData.getColumnName(i)).append(" (")
                             .append(metaData.getColumnTypeName(i)).append(")");
@@ -58,7 +57,8 @@ public final class DataFusionUtil {
             } catch (SQLException err) {
                 resultStringBuilder.append("Table: ").append(tableName).append("\n");
                 resultStringBuilder.append("----------------------------------------\n\n");
-                // resultStringBuilder.append("Error retrieving data from table ").append(tableName).append(":
+                // resultStringBuilder.append("Error retrieving data from table
+                // ").append(tableName).append(":
                 // ").append(err.getMessage()).append("\n");
             }
         }
@@ -66,7 +66,8 @@ public final class DataFusionUtil {
         return resultStringBuilder.toString();
     }
 
-    // During development, you might want to manually let this function call exit(1) to fail fast
+    // During development, you might want to manually let this function call exit(1)
+    // to fail fast
     public static void dfAssert(boolean condition, String message) {
         if (!condition) {
             // Development mode assertion failure

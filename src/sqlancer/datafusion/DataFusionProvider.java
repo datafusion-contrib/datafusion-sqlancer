@@ -1,6 +1,5 @@
 package sqlancer.datafusion;
 
-import static sqlancer.datafusion.DataFusionUtil.DataFusionLogger.DataFusionLogType.DML;
 import static sqlancer.datafusion.DataFusionUtil.dfAssert;
 import static sqlancer.datafusion.DataFusionUtil.displayTables;
 
@@ -8,6 +7,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.stream.Collectors;
 
@@ -34,29 +34,52 @@ public class DataFusionProvider extends SQLProviderAdapter<DataFusionGlobalState
         super(DataFusionGlobalState.class, DataFusionOptions.class);
     }
 
+    // Basic tables generated are DataFusion memory tables (named t1, t2, ...)
+    // Equivalent table can be backed by different physical implementation
+    // which will be named like t1_stringview, t2_parquet, etc.
+    //
+    // e.g. t1 and t1_stringview are logically equivalent table, but backed by
+    // different physical representation
+    //
+    // This helps to do more metamorphic testing on tables, for example
+    // `select * from t1` and `select * from t1_stringview` should give same
+    // result
+    //
+    // Supported physical implementation for tables:
+    // 1. Memory table (t1)
+    // 2. Memory table use StringView for TEXT columns (t1_stringview)
+    // Note: It's possible only convert random TEXT columns to StringView
     @Override
     public void generateDatabase(DataFusionGlobalState globalState) throws Exception {
-        int tableCount = Randomly.fromOptions(1, 2, 3, 4, 5, 6, 7);
+        // Create base tables
+        // ============================
+
+        int tableCount = Randomly.fromOptions(1, 2, 3, 4);
         for (int i = 0; i < tableCount; i++) {
-            SQLQueryAdapter queryCreateRandomTable = new DataFusionTableGenerator().getQuery(globalState);
+            SQLQueryAdapter queryCreateRandomTable = new DataFusionTableGenerator().getCreateStmt(globalState);
             queryCreateRandomTable.execute(globalState);
             globalState.updateSchema();
-            globalState.dfLogger.appendToLog(DML, queryCreateRandomTable.toString() + "\n");
+            globalState.dfLogger.appendToLog(DataFusionLogger.DataFusionLogType.DML,
+                    queryCreateRandomTable.toString() + "\n");
         }
 
         // Now only `INSERT` DML is supported
         // If more DMLs are added later, should use`StatementExecutor` instead
         // (see DuckDB's implementation for reference)
 
+        // Generating rows in base tables (t1, t2, ... not include t1_stringview, etc.)
+        // ============================
+
         globalState.updateSchema();
-        List<DataFusionTable> allTables = globalState.getSchema().getDatabaseTables();
-        List<String> allTablesName = allTables.stream().map(t -> t.getName()).collect(Collectors.toList());
-        if (allTablesName.isEmpty()) {
+        List<DataFusionTable> allBaseTables = globalState.getSchema().getDatabaseTables();
+        List<String> allBaseTablesName = allBaseTables.stream().map(DataFusionTable::getName)
+                .collect(Collectors.toList());
+        if (allBaseTablesName.isEmpty()) {
             dfAssert(false, "Generate Database failed.");
         }
 
         // Randomly insert some data into existing tables
-        for (DataFusionTable table : allTables) {
+        for (DataFusionTable table : allBaseTables) {
             int nInsertQuery = globalState.getRandomly().getInteger(0, globalState.getOptions().getMaxNumberInserts());
 
             for (int i = 0; i < nInsertQuery; i++) {
@@ -69,9 +92,24 @@ public class DataFusionProvider extends SQLProviderAdapter<DataFusionGlobalState
                 }
 
                 insertQuery.execute(globalState);
-                globalState.dfLogger.appendToLog(DML, insertQuery.toString() + "\n");
+                globalState.dfLogger.appendToLog(DataFusionLogger.DataFusionLogType.DML, insertQuery.toString() + "\n");
             }
         }
+
+        // Construct mutated tables like t1_stringview, etc.
+        // ============================
+        for (DataFusionTable table : allBaseTables) {
+            Optional<SQLQueryAdapter> queryCreateStringViewTable = new DataFusionTableGenerator()
+                    .createStringViewTable(globalState, table);
+            if (queryCreateStringViewTable.isPresent()) {
+                queryCreateStringViewTable.get().execute(globalState);
+                globalState.dfLogger.appendToLog(DataFusionLogger.DataFusionLogType.DML,
+                        queryCreateStringViewTable.get().toString() + "\n");
+            }
+        }
+        globalState.updateSchema();
+        List<DataFusionTable> allTables = globalState.getSchema().getDatabaseTables();
+        List<String> allTablesName = allTables.stream().map(DataFusionTable::getName).collect(Collectors.toList());
 
         // TODO(datafusion) add `DataFUsionLogType.STATE` for this whole db state log
         if (globalState.getDbmsSpecificOptions().showDebugInfo) {

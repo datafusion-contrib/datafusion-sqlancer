@@ -31,6 +31,7 @@ import sqlancer.common.log.Loggable;
 import sqlancer.common.query.Query;
 import sqlancer.common.query.SQLancerResultSet;
 import sqlancer.databend.DatabendProvider;
+import sqlancer.datafusion.DataFusionProvider;
 import sqlancer.doris.DorisProvider;
 import sqlancer.duckdb.DuckDBProvider;
 import sqlancer.h2.H2Provider;
@@ -734,6 +735,7 @@ public final class Main {
             providers.add(new CnosDBProvider());
             providers.add(new CockroachDBProvider());
             providers.add(new DatabendProvider());
+            providers.add(new DataFusionProvider());
             providers.add(new DorisProvider());
             providers.add(new DuckDBProvider());
             providers.add(new H2Provider());

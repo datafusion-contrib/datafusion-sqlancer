@@ -7,10 +7,14 @@ import java.util.List;
 import sqlancer.Randomly;
 import sqlancer.common.ast.newast.NewToStringVisitor;
 import sqlancer.common.ast.newast.Node;
+import sqlancer.common.ast.newast.TableReferenceNode;
+import sqlancer.datafusion.DataFusionSchema.DataFusionTable;
 import sqlancer.datafusion.ast.DataFusionConstant;
 import sqlancer.datafusion.ast.DataFusionExpression;
 import sqlancer.datafusion.ast.DataFusionSelect;
+import sqlancer.datafusion.ast.DataFusionSelect.DataFusionAliasedTable;
 import sqlancer.datafusion.ast.DataFusionSelect.DataFusionFrom;
+import sqlancer.datafusion.ast.DataFusionSpecialExpr.CastToStringView;
 import sqlancer.datafusion.ast.DataFusionWindowExpr;
 
 public class DataFusionToStringVisitor extends NewToStringVisitor<DataFusionExpression> {
@@ -37,6 +41,10 @@ public class DataFusionToStringVisitor extends NewToStringVisitor<DataFusionExpr
             visit((DataFusionFrom) expr);
         } else if (expr instanceof DataFusionWindowExpr) {
             visit((DataFusionWindowExpr) expr);
+        } else if (expr instanceof CastToStringView) {
+            visit((CastToStringView) expr);
+        } else if (expr instanceof DataFusionAliasedTable) {
+            visit((DataFusionAliasedTable) expr);
         } else {
             throw new AssertionError(expr.getClass());
         }
@@ -49,13 +57,13 @@ public class DataFusionToStringVisitor extends NewToStringVisitor<DataFusionExpr
 
         /* e.g. from t1, t2, t3 */
         if (from.joinConditionList.isEmpty()) {
-            visit(from.tableList);
+            visit(from.tableExprList);
             return;
         }
 
-        dfAssert(from.joinConditionList.size() == from.tableList.size() - 1, "Validate from");
+        dfAssert(from.joinConditionList.size() == from.tableExprList.size() - 1, "Validate from");
         /* e.g. from t1 join t2 on t1.v1=t2.v1 */
-        visit(from.tableList.get(0));
+        visit(from.tableExprList.get(0));
         for (int i = 0; i < from.joinConditionList.size(); i++) {
             switch (from.joinTypeList.get(i)) {
             case INNER:
@@ -80,7 +88,7 @@ public class DataFusionToStringVisitor extends NewToStringVisitor<DataFusionExpr
                 dfAssert(false, "Unreachable");
             }
 
-            visit(from.tableList.get(i + 1)); // ti
+            visit(from.tableExprList.get(i + 1)); // ti
 
             /* ON ... */
             Node<DataFusionExpression> cond = from.joinConditionList.get(i);
@@ -161,6 +169,33 @@ public class DataFusionToStringVisitor extends NewToStringVisitor<DataFusionExpr
         }
 
         sb.append(")");
+    }
+
+    private void visit(CastToStringView castToStringView) {
+        sb.append("ARROW_CAST(");
+        visit(castToStringView.expr);
+        sb.append(", 'Utf8')");
+    }
+
+    private void visit(DataFusionAliasedTable alias) {
+        if (alias.table instanceof TableReferenceNode) {
+            DataFusionTable t = null;
+            if (alias.table instanceof TableReferenceNode) {
+                TableReferenceNode<?, ?> tableRef = (TableReferenceNode<?, ?>) alias.table;
+                t = (DataFusionTable) tableRef.getTable();
+            } else {
+                dfAssert(false, "Unreachable");
+            }
+
+            String baseName = t.getNotAliasedName();
+            sb.append(baseName);
+
+            dfAssert(t.alias.isPresent(), "Alias should be present");
+            sb.append(" AS ");
+            sb.append(t.alias.get());
+        } else {
+            dfAssert(false, "Unreachable");
+        }
     }
 
 }

@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import sqlancer.ComparatorHelper;
+import sqlancer.IgnoreMeException;
 import sqlancer.Randomly;
 import sqlancer.common.ast.newast.NewBinaryOperatorNode;
 import sqlancer.common.ast.newast.Node;
@@ -43,6 +44,7 @@ public class DataFusionQueryPartitioningWhereTester extends DataFusionQueryParti
         // generate a random 'SELECT [expr1] FROM [expr2] WHERE [expr3]
         super.check();
         DataFusionSelect randomSelect = select;
+        randomSelect.mutateEquivalentTableName();
 
         if (Randomly.getBoolean()) {
             randomSelect.distinct = true;
@@ -69,12 +71,15 @@ public class DataFusionQueryPartitioningWhereTester extends DataFusionQueryParti
             randomSelect.setWhereClause(null);
             qString = DataFusionToStringVisitor.asString(randomSelect);
 
+            randomSelect.mutateEquivalentTableName();
             randomSelect.setWhereClause(predicate);
             qp1String = DataFusionToStringVisitor.asString(randomSelect);
 
+            randomSelect.mutateEquivalentTableName();
             randomSelect.setWhereClause(negatedPredicate);
             qp2String = DataFusionToStringVisitor.asString(randomSelect);
 
+            randomSelect.mutateEquivalentTableName();
             randomSelect.setWhereClause(isNullPredicate);
             qp3String = DataFusionToStringVisitor.asString(randomSelect);
         } else {
@@ -111,6 +116,8 @@ public class DataFusionQueryPartitioningWhereTester extends DataFusionQueryParti
             /*
              * Run all queires
              */
+            // System.out.println("DBG TLP: " + qString + "\n" + qp1String + "\n" +
+            // qp2String + "\n" + qp3String);
             List<String> qResultSet = ComparatorHelper.getResultSetFirstColumnAsString(qString, errors, state);
             List<String> combinedString = new ArrayList<>();
             List<String> qpResultSet = ComparatorHelper.getCombinedResultSet(qp1String, qp2String, qp3String,
@@ -121,6 +128,13 @@ public class DataFusionQueryPartitioningWhereTester extends DataFusionQueryParti
             ComparatorHelper.assumeResultSetsAreEqual(qResultSet, qpResultSet, qString, combinedString, state,
                     ComparatorHelper::canonicalizeResultValue);
         } catch (AssertionError e) {
+            // whitelist
+            // ---------
+            // https://github.com/apache/datafusion/issues/12468
+            if (qp1String.contains("NATURAL JOIN")) {
+                throw new IgnoreMeException();
+            }
+
             // Append more error message
             String replay = DataFusionUtil.getReplay(state.getDatabaseName());
             String newMessage = e.getMessage() + "\n" + e.getCause() + "\n" + replay + "\n";

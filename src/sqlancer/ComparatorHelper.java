@@ -131,7 +131,8 @@ public final class ComparatorHelper {
     public static void assumeResultSetsAreEqual(List<String> resultSet, List<String> secondResultSet,
             String originalQueryString, List<String> combinedString, SQLGlobalState<?, ?> state,
             UnaryOperator<String> canonicalizationRule) {
-        // Overloaded version of assumeResultSetsAreEqual that takes a canonicalization function which is applied to
+        // Overloaded version of assumeResultSetsAreEqual that takes a canonicalization
+        // function which is applied to
         // both result sets before their comparison.
         List<String> canonicalizedResultSet = resultSet.stream().map(canonicalizationRule).collect(Collectors.toList());
         List<String> canonicalizedSecondResultSet = secondResultSet.stream().map(canonicalizationRule)
