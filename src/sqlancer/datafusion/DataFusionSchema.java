@@ -115,7 +115,7 @@ public class DataFusionSchema extends AbstractSchema<DataFusionGlobalState, Data
      */
     public enum DataFusionDataType {
 
-        STRING, BIGINT, DOUBLE, BOOLEAN, NULL;
+        STRING, BIGINT, DOUBLE, BOOLEAN, NULL, DATE, TIMESTAMP, TIME;
 
         public static DataFusionDataType getRandomWithoutNull() {
             DataFusionDataType dt;
@@ -127,6 +127,10 @@ public class DataFusionSchema extends AbstractSchema<DataFusionGlobalState, Data
 
         public boolean isNumeric() {
             return this == BIGINT || this == DOUBLE;
+        }
+
+        public boolean isTemporal() {
+            return this == DATE || this == TIMESTAMP || this == TIME;
         }
 
         // How to parse type in DataFusion's catalog to `DataFusionDataType`
@@ -145,7 +149,15 @@ public class DataFusionSchema extends AbstractSchema<DataFusionGlobalState, Data
                 return DataFusionDataType.STRING;
             case "Utf8View":
                 return DataFusionDataType.STRING;
+            case "Date32":
+                return DataFusionDataType.DATE;
+            case "Time64(ns)":
+                return DataFusionDataType.TIME;
             default:
+                // Handle Timestamp variants with timezone info
+                if (typeString.startsWith("Timestamp(")) {
+                    return DataFusionDataType.TIMESTAMP;
+                }
                 dfAssert(false, "Uncovered branch typeString: " + typeString);
             }
 
@@ -182,6 +194,32 @@ public class DataFusionSchema extends AbstractSchema<DataFusionGlobalState, Data
                 return DataFusionConstant.createNullConstant();
             case STRING:
                 return new DataFusionConstant.DataFusionStringConstant(state.getRandomly().getString());
+            case DATE:
+                // Generate dates in a reasonable range: -10000 to 10000 days from epoch (1970-01-01)
+                long daysFromEpoch = state.getRandomly().getInteger(-10000, 10000);
+                return DataFusionConstant.createDateConstant(daysFromEpoch);
+            case TIMESTAMP:
+                // Generate timestamps: random value or specific edge cases
+                if (Randomly.getBooleanWithSmallProbability()) {
+                    // Edge cases: very old, very new, or around epoch
+                    long edgeTimestamp = Randomly.fromOptions(
+                        0L,                           // Unix epoch
+                        -2208988800L,                // 1900-01-01
+                        946684800L,                  // 2000-01-01
+                        1577836800L,                 // 2020-01-01
+                        253402300799L                // 9999-12-31
+                    );
+                    return DataFusionConstant.createTimestampConstant(edgeTimestamp);
+                }
+                // Random timestamp in reasonable range (use days as base, then convert to seconds)
+                // Generate days from epoch: -10000 to 20000 days, then multiply by seconds per day
+                long randomDays = state.getRandomly().getInteger(-10000, 20000);
+                long randomTimestamp = randomDays * 86400; // Convert to seconds
+                return DataFusionConstant.createTimestampConstant(randomTimestamp);
+            case TIME:
+                // Generate time values (0 to 86400 seconds in a day)
+                long secondsInDay = state.getRandomly().getInteger(0, 86400);
+                return DataFusionConstant.createTimeConstant(secondsInDay);
             default:
                 dfAssert(false, "Unreachable. All branches should be eovered");
             }
