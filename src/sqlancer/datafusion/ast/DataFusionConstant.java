@@ -15,6 +15,18 @@ public class DataFusionConstant implements Node<DataFusionExpression> {
         return new DataFusionNullConstant();
     }
 
+    public static Node<DataFusionExpression> createDateConstant(long daysFromEpoch) {
+        return new DataFusionDateConstant(daysFromEpoch);
+    }
+
+    public static Node<DataFusionExpression> createTimestampConstant(long secondsSinceEpoch) {
+        return new DataFusionTimestampConstant(secondsSinceEpoch);
+    }
+
+    public static Node<DataFusionExpression> createTimeConstant(long secondsInDay) {
+        return new DataFusionTimeConstant(secondsInDay);
+    }
+
     public static class DataFusionNullConstant extends DataFusionConstant {
 
         @Override
@@ -133,5 +145,145 @@ public class DataFusionConstant implements Node<DataFusionExpression> {
             return "'" + value + "'";
         }
 
+    }
+
+    public static class DataFusionDateConstant extends DataFusionConstant {
+        private final String value;
+
+        public DataFusionDateConstant(long daysFromEpoch) {
+            // Convert days from epoch to date string
+            // Epoch is 1970-01-01, so we add/subtract days
+            long totalDays = daysFromEpoch;
+
+            // Simple date calculation (not accounting for all edge cases, but good enough for fuzzing)
+            // Start from 1970-01-01
+            int year = 1970;
+            int month = 1;
+            int day = 1;
+
+            // Approximate calculation for fuzzing purposes
+            if (totalDays >= 0) {
+                year += (int) (totalDays / 365);
+                totalDays = totalDays % 365;
+                month = (int) (totalDays / 30) + 1;
+                day = (int) (totalDays % 30) + 1;
+            } else {
+                totalDays = -totalDays;
+                year -= (int) (totalDays / 365);
+                totalDays = totalDays % 365;
+                month = (int) (totalDays / 30) + 1;
+                day = (int) (totalDays % 30) + 1;
+            }
+
+            // Keep values in valid ranges
+            if (year < 1) {
+                year = 1;
+            }
+            if (year > 9999) {
+                year = 9999;
+            }
+            if (month < 1) {
+                month = 1;
+            }
+            if (month > 12) {
+                month = 12;
+            }
+            if (day < 1) {
+                day = 1;
+            }
+            if (day > 28) {
+                day = 28; // Safe for all months
+            }
+
+            this.value = String.format("%04d-%02d-%02d", year, month, day);
+        }
+
+        @Override
+        public String toString() {
+            return "DATE '" + value + "'";
+        }
+    }
+
+    public static class DataFusionTimestampConstant extends DataFusionConstant {
+        private final String value;
+
+        public DataFusionTimestampConstant(long secondsSinceEpoch) {
+            // Convert seconds to timestamp string YYYY-MM-DD HH:MM:SS
+            // Simple approximation for fuzzing
+            long totalSeconds = Math.abs(secondsSinceEpoch);
+            long seconds = totalSeconds % 60;
+            long totalMinutes = totalSeconds / 60;
+            long minutes = totalMinutes % 60;
+            long totalHours = totalMinutes / 60;
+            long hours = totalHours % 24;
+            long totalDays = totalHours / 24;
+
+            // Calculate date from days (approximate)
+            int year = 1970;
+            int month = 1;
+            int day = 1;
+
+            if (secondsSinceEpoch >= 0) {
+                year += (int) (totalDays / 365);
+                totalDays = totalDays % 365;
+                month = (int) (totalDays / 30) + 1;
+                day = (int) (totalDays % 30) + 1;
+            } else {
+                year -= (int) (totalDays / 365);
+                totalDays = totalDays % 365;
+                month = (int) (totalDays / 30) + 1;
+                day = (int) (totalDays % 30) + 1;
+            }
+
+            // Keep in valid ranges
+            if (year < 1) {
+                year = 1;
+            }
+            if (year > 9999) {
+                year = 9999;
+            }
+            if (month < 1) {
+                month = 1;
+            }
+            if (month > 12) {
+                month = 12;
+            }
+            if (day < 1) {
+                day = 1;
+            }
+            if (day > 28) {
+                day = 28;
+            }
+
+            this.value = String.format("%04d-%02d-%02d %02d:%02d:%02d", year, month, day, hours, minutes, seconds);
+        }
+
+        @Override
+        public String toString() {
+            return "TIMESTAMP '" + value + "'";
+        }
+    }
+
+    public static class DataFusionTimeConstant extends DataFusionConstant {
+        private final String value;
+
+        public DataFusionTimeConstant(long secondsInDay) {
+            // Convert seconds to HH:MM:SS
+            long totalSeconds = secondsInDay % 86400; // Ensure within a day
+            if (totalSeconds < 0) {
+                totalSeconds += 86400;
+            }
+
+            long hours = totalSeconds / 3600;
+            long minutes = (totalSeconds % 3600) / 60;
+            long seconds = totalSeconds % 60;
+
+            this.value = String.format("%02d:%02d:%02d", hours, minutes, seconds);
+        }
+
+        @Override
+        public String toString() {
+            return "TIME '" + value + "'";
+        }
     }
 }

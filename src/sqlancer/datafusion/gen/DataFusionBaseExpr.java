@@ -303,6 +303,31 @@ public class DataFusionBaseExpr implements Operator {
         FUNC_REGEXP_REPLACE2, // regexp_replace('aBc', '(b|d)', 'Ab\\1a', 'i')
 
         // Time and Date Functions
+        // Date/Time Construction
+        FUNC_CURRENT_DATE, // current_date()
+        FUNC_CURRENT_TIME, // current_time()
+        FUNC_NOW, // now()
+        FUNC_TODAY, // today()
+        FUNC_MAKE_DATE, // make_date(year, month, day)
+        // Date/Time Conversion
+        FUNC_TO_DATE1, // to_date(expression)
+        FUNC_TO_DATE2, // to_date(expression, format)
+        FUNC_TO_TIMESTAMP1, // to_timestamp(expression)
+        FUNC_TO_TIMESTAMP2, // to_timestamp(expression, format)
+        FUNC_TO_TIMESTAMP_SECONDS1, // to_timestamp_seconds(expression)
+        FUNC_TO_TIMESTAMP_SECONDS2, // to_timestamp_seconds(expression, format)
+        FUNC_TO_TIMESTAMP_MILLIS1, // to_timestamp_millis(expression)
+        FUNC_TO_TIMESTAMP_MILLIS2, // to_timestamp_millis(expression, format)
+        FUNC_TO_TIMESTAMP_MICROS1, // to_timestamp_micros(expression)
+        FUNC_TO_TIMESTAMP_MICROS2, // to_timestamp_micros(expression, format)
+        FUNC_TO_TIMESTAMP_NANOS1, // to_timestamp_nanos(expression)
+        FUNC_TO_TIMESTAMP_NANOS2, // to_timestamp_nanos(expression, format)
+        FUNC_FROM_UNIXTIME, // from_unixtime(expression)
+        // Date/Time Extraction & Manipulation
+        FUNC_DATE_PART, // date_part('year', timestamp)
+        FUNC_DATE_TRUNC, // date_trunc('day', timestamp)
+        FUNC_DATE_BIN, // date_bin(interval '1 day', timestamp, origin)
+        FUNC_TO_CHAR, // to_char(timestamp, format)
 
         // Array Functions
 

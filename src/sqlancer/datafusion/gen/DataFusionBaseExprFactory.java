@@ -26,13 +26,15 @@ public final class DataFusionBaseExprFactory {
                     Arrays.asList(DataFusionDataType.BOOLEAN),
                     Arrays.asList(new ArgumentType.Fixed(
                             new ArrayList<>(Arrays.asList(DataFusionDataType.STRING, DataFusionDataType.BOOLEAN,
-                                    DataFusionDataType.DOUBLE, DataFusionDataType.BIGINT, DataFusionDataType.NULL)))));
+                                    DataFusionDataType.DOUBLE, DataFusionDataType.BIGINT, DataFusionDataType.NULL,
+                                    DataFusionDataType.DATE, DataFusionDataType.TIMESTAMP, DataFusionDataType.TIME)))));
         case IS_NOT_NULL:
             return new DataFusionBaseExpr("IS NOT NULL", 1, DataFusionBaseExprCategory.UNARY_POSTFIX,
                     Arrays.asList(DataFusionDataType.BOOLEAN),
                     Arrays.asList(new ArgumentType.Fixed(
                             new ArrayList<>(Arrays.asList(DataFusionDataType.STRING, DataFusionDataType.BOOLEAN,
-                                    DataFusionDataType.DOUBLE, DataFusionDataType.BIGINT, DataFusionDataType.NULL)))));
+                                    DataFusionDataType.DOUBLE, DataFusionDataType.BIGINT, DataFusionDataType.NULL,
+                                    DataFusionDataType.DATE, DataFusionDataType.TIMESTAMP, DataFusionDataType.TIME)))));
         case BITWISE_AND:
             return new DataFusionBaseExpr("&", 2, DataFusionBaseExprCategory.BINARY,
                     Arrays.asList(DataFusionDataType.BIGINT, DataFusionDataType.DOUBLE),
@@ -114,63 +116,72 @@ public final class DataFusionBaseExprFactory {
                     Arrays.asList(DataFusionDataType.BOOLEAN),
                     Arrays.asList(
                             new ArgumentType.Fixed(new ArrayList<>(Arrays.asList(DataFusionDataType.STRING,
-                                    DataFusionDataType.BIGINT, DataFusionDataType.DOUBLE, DataFusionDataType.BOOLEAN))),
+                                    DataFusionDataType.BIGINT, DataFusionDataType.DOUBLE, DataFusionDataType.BOOLEAN,
+                                    DataFusionDataType.DATE, DataFusionDataType.TIMESTAMP, DataFusionDataType.TIME))),
                             new ArgumentType.SameAsFirstArgType()));
         case EQUAL2:
             return new DataFusionBaseExpr("==", 2, DataFusionBaseExprCategory.BINARY,
                     Arrays.asList(DataFusionDataType.BOOLEAN),
                     Arrays.asList(
                             new ArgumentType.Fixed(new ArrayList<>(Arrays.asList(DataFusionDataType.STRING,
-                                    DataFusionDataType.BIGINT, DataFusionDataType.DOUBLE, DataFusionDataType.BOOLEAN))),
+                                    DataFusionDataType.BIGINT, DataFusionDataType.DOUBLE, DataFusionDataType.BOOLEAN,
+                                    DataFusionDataType.DATE, DataFusionDataType.TIMESTAMP, DataFusionDataType.TIME))),
                             new ArgumentType.SameAsFirstArgType()));
         case NOT_EQUAL:
             return new DataFusionBaseExpr("!=", 2, DataFusionBaseExprCategory.BINARY,
                     Arrays.asList(DataFusionDataType.BOOLEAN),
                     Arrays.asList(
                             new ArgumentType.Fixed(new ArrayList<>(Arrays.asList(DataFusionDataType.STRING,
-                                    DataFusionDataType.BIGINT, DataFusionDataType.DOUBLE, DataFusionDataType.BOOLEAN))),
+                                    DataFusionDataType.BIGINT, DataFusionDataType.DOUBLE, DataFusionDataType.BOOLEAN,
+                                    DataFusionDataType.DATE, DataFusionDataType.TIMESTAMP, DataFusionDataType.TIME))),
                             new ArgumentType.SameAsFirstArgType()));
         case LESS_THAN:
             return new DataFusionBaseExpr("<", 2, DataFusionBaseExprCategory.BINARY,
                     Arrays.asList(DataFusionDataType.BOOLEAN),
                     Arrays.asList(
                             new ArgumentType.Fixed(new ArrayList<>(Arrays.asList(DataFusionDataType.STRING,
-                                    DataFusionDataType.BIGINT, DataFusionDataType.DOUBLE, DataFusionDataType.BOOLEAN))),
+                                    DataFusionDataType.BIGINT, DataFusionDataType.DOUBLE, DataFusionDataType.BOOLEAN,
+                                    DataFusionDataType.DATE, DataFusionDataType.TIMESTAMP, DataFusionDataType.TIME))),
                             new ArgumentType.SameAsFirstArgType()));
         case LESS_THAN_OR_EQUAL_TO:
             return new DataFusionBaseExpr("<=", 2, DataFusionBaseExprCategory.BINARY,
                     Arrays.asList(DataFusionDataType.BOOLEAN),
                     Arrays.asList(
                             new ArgumentType.Fixed(new ArrayList<>(Arrays.asList(DataFusionDataType.STRING,
-                                    DataFusionDataType.BIGINT, DataFusionDataType.DOUBLE, DataFusionDataType.BOOLEAN))),
+                                    DataFusionDataType.BIGINT, DataFusionDataType.DOUBLE, DataFusionDataType.BOOLEAN,
+                                    DataFusionDataType.DATE, DataFusionDataType.TIMESTAMP, DataFusionDataType.TIME))),
                             new ArgumentType.SameAsFirstArgType()));
         case GREATER_THAN:
             return new DataFusionBaseExpr(">", 2, DataFusionBaseExprCategory.BINARY,
                     Arrays.asList(DataFusionDataType.BOOLEAN),
                     Arrays.asList(
                             new ArgumentType.Fixed(new ArrayList<>(Arrays.asList(DataFusionDataType.STRING,
-                                    DataFusionDataType.BIGINT, DataFusionDataType.DOUBLE, DataFusionDataType.BOOLEAN))),
+                                    DataFusionDataType.BIGINT, DataFusionDataType.DOUBLE, DataFusionDataType.BOOLEAN,
+                                    DataFusionDataType.DATE, DataFusionDataType.TIMESTAMP, DataFusionDataType.TIME))),
                             new ArgumentType.SameAsFirstArgType()));
         case GREATER_THAN_OR_EQUAL_TO:
             return new DataFusionBaseExpr(">=", 2, DataFusionBaseExprCategory.BINARY,
                     Arrays.asList(DataFusionDataType.BOOLEAN),
                     Arrays.asList(
                             new ArgumentType.Fixed(new ArrayList<>(Arrays.asList(DataFusionDataType.STRING,
-                                    DataFusionDataType.BIGINT, DataFusionDataType.DOUBLE, DataFusionDataType.BOOLEAN))),
+                                    DataFusionDataType.BIGINT, DataFusionDataType.DOUBLE, DataFusionDataType.BOOLEAN,
+                                    DataFusionDataType.DATE, DataFusionDataType.TIMESTAMP, DataFusionDataType.TIME))),
                             new ArgumentType.SameAsFirstArgType()));
         case IS_DISTINCT_FROM:
             return new DataFusionBaseExpr("IS DISTINCT FROM", 2, DataFusionBaseExprCategory.BINARY,
                     Arrays.asList(DataFusionDataType.BOOLEAN),
                     Arrays.asList(
                             new ArgumentType.Fixed(new ArrayList<>(Arrays.asList(DataFusionDataType.STRING,
-                                    DataFusionDataType.BIGINT, DataFusionDataType.DOUBLE, DataFusionDataType.BOOLEAN))),
+                                    DataFusionDataType.BIGINT, DataFusionDataType.DOUBLE, DataFusionDataType.BOOLEAN,
+                                    DataFusionDataType.DATE, DataFusionDataType.TIMESTAMP, DataFusionDataType.TIME))),
                             new ArgumentType.SameAsFirstArgType()));
         case IS_NOT_DISTINCT_FROM:
             return new DataFusionBaseExpr("IS NOT DISTINCT FROM", 2, DataFusionBaseExprCategory.BINARY,
                     Arrays.asList(DataFusionDataType.BOOLEAN),
                     Arrays.asList(
                             new ArgumentType.Fixed(new ArrayList<>(Arrays.asList(DataFusionDataType.STRING,
-                                    DataFusionDataType.BIGINT, DataFusionDataType.DOUBLE, DataFusionDataType.BOOLEAN))),
+                                    DataFusionDataType.BIGINT, DataFusionDataType.DOUBLE, DataFusionDataType.BOOLEAN,
+                                    DataFusionDataType.DATE, DataFusionDataType.TIMESTAMP, DataFusionDataType.TIME))),
                             new ArgumentType.SameAsFirstArgType()));
         // String related operators
         case LIKE:
@@ -595,6 +606,129 @@ public final class DataFusionBaseExprFactory {
                     Arrays.asList(new ArgumentType.Fixed(new ArrayList<>(Arrays.asList(DataFusionDataType.STRING))),
                             new ArgumentType.Fixed(new ArrayList<>(Arrays.asList(DataFusionDataType.STRING))),
                             new ArgumentType.Fixed(new ArrayList<>(Arrays.asList(DataFusionDataType.STRING)))));
+
+        // Date/Time Functions - Construction
+        case FUNC_CURRENT_DATE:
+            return new DataFusionBaseExpr("CURRENT_DATE", 0, DataFusionBaseExprCategory.FUNC,
+                    Arrays.asList(DataFusionDataType.DATE), Arrays.asList());
+        case FUNC_CURRENT_TIME:
+            return new DataFusionBaseExpr("CURRENT_TIME", 0, DataFusionBaseExprCategory.FUNC,
+                    Arrays.asList(DataFusionDataType.TIME), Arrays.asList());
+        case FUNC_NOW:
+            return new DataFusionBaseExpr("NOW", 0, DataFusionBaseExprCategory.FUNC,
+                    Arrays.asList(DataFusionDataType.TIMESTAMP), Arrays.asList());
+        case FUNC_TODAY:
+            return new DataFusionBaseExpr("TODAY", 0, DataFusionBaseExprCategory.FUNC,
+                    Arrays.asList(DataFusionDataType.DATE), Arrays.asList());
+        case FUNC_MAKE_DATE:
+            return new DataFusionBaseExpr("MAKE_DATE", 3, DataFusionBaseExprCategory.FUNC,
+                    Arrays.asList(DataFusionDataType.DATE),
+                    Arrays.asList(
+                            new ArgumentType.Fixed(new ArrayList<>(Arrays.asList(DataFusionDataType.BIGINT))),
+                            new ArgumentType.Fixed(new ArrayList<>(Arrays.asList(DataFusionDataType.BIGINT))),
+                            new ArgumentType.Fixed(new ArrayList<>(Arrays.asList(DataFusionDataType.BIGINT)))));
+
+        // Date/Time Functions - Conversion
+        case FUNC_TO_DATE1:
+            return new DataFusionBaseExpr("TO_DATE", 1, DataFusionBaseExprCategory.FUNC,
+                    Arrays.asList(DataFusionDataType.DATE),
+                    Arrays.asList(new ArgumentType.Fixed(new ArrayList<>(
+                            Arrays.asList(DataFusionDataType.STRING, DataFusionDataType.BIGINT)))));
+        case FUNC_TO_DATE2:
+            return new DataFusionBaseExpr("TO_DATE", 2, DataFusionBaseExprCategory.FUNC,
+                    Arrays.asList(DataFusionDataType.DATE),
+                    Arrays.asList(
+                            new ArgumentType.Fixed(new ArrayList<>(Arrays.asList(DataFusionDataType.STRING))),
+                            new ArgumentType.Fixed(new ArrayList<>(Arrays.asList(DataFusionDataType.STRING)))));
+        case FUNC_TO_TIMESTAMP1:
+            return new DataFusionBaseExpr("TO_TIMESTAMP", 1, DataFusionBaseExprCategory.FUNC,
+                    Arrays.asList(DataFusionDataType.TIMESTAMP),
+                    Arrays.asList(new ArgumentType.Fixed(new ArrayList<>(
+                            Arrays.asList(DataFusionDataType.STRING, DataFusionDataType.BIGINT)))));
+        case FUNC_TO_TIMESTAMP2:
+            return new DataFusionBaseExpr("TO_TIMESTAMP", 2, DataFusionBaseExprCategory.FUNC,
+                    Arrays.asList(DataFusionDataType.TIMESTAMP),
+                    Arrays.asList(
+                            new ArgumentType.Fixed(new ArrayList<>(Arrays.asList(DataFusionDataType.STRING))),
+                            new ArgumentType.Fixed(new ArrayList<>(Arrays.asList(DataFusionDataType.STRING)))));
+        case FUNC_TO_TIMESTAMP_SECONDS1:
+            return new DataFusionBaseExpr("TO_TIMESTAMP_SECONDS", 1, DataFusionBaseExprCategory.FUNC,
+                    Arrays.asList(DataFusionDataType.TIMESTAMP),
+                    Arrays.asList(new ArgumentType.Fixed(new ArrayList<>(
+                            Arrays.asList(DataFusionDataType.STRING, DataFusionDataType.BIGINT)))));
+        case FUNC_TO_TIMESTAMP_SECONDS2:
+            return new DataFusionBaseExpr("TO_TIMESTAMP_SECONDS", 2, DataFusionBaseExprCategory.FUNC,
+                    Arrays.asList(DataFusionDataType.TIMESTAMP),
+                    Arrays.asList(
+                            new ArgumentType.Fixed(new ArrayList<>(Arrays.asList(DataFusionDataType.STRING))),
+                            new ArgumentType.Fixed(new ArrayList<>(Arrays.asList(DataFusionDataType.STRING)))));
+        case FUNC_TO_TIMESTAMP_MILLIS1:
+            return new DataFusionBaseExpr("TO_TIMESTAMP_MILLIS", 1, DataFusionBaseExprCategory.FUNC,
+                    Arrays.asList(DataFusionDataType.TIMESTAMP),
+                    Arrays.asList(new ArgumentType.Fixed(new ArrayList<>(
+                            Arrays.asList(DataFusionDataType.STRING, DataFusionDataType.BIGINT)))));
+        case FUNC_TO_TIMESTAMP_MILLIS2:
+            return new DataFusionBaseExpr("TO_TIMESTAMP_MILLIS", 2, DataFusionBaseExprCategory.FUNC,
+                    Arrays.asList(DataFusionDataType.TIMESTAMP),
+                    Arrays.asList(
+                            new ArgumentType.Fixed(new ArrayList<>(Arrays.asList(DataFusionDataType.STRING))),
+                            new ArgumentType.Fixed(new ArrayList<>(Arrays.asList(DataFusionDataType.STRING)))));
+        case FUNC_TO_TIMESTAMP_MICROS1:
+            return new DataFusionBaseExpr("TO_TIMESTAMP_MICROS", 1, DataFusionBaseExprCategory.FUNC,
+                    Arrays.asList(DataFusionDataType.TIMESTAMP),
+                    Arrays.asList(new ArgumentType.Fixed(new ArrayList<>(
+                            Arrays.asList(DataFusionDataType.STRING, DataFusionDataType.BIGINT)))));
+        case FUNC_TO_TIMESTAMP_MICROS2:
+            return new DataFusionBaseExpr("TO_TIMESTAMP_MICROS", 2, DataFusionBaseExprCategory.FUNC,
+                    Arrays.asList(DataFusionDataType.TIMESTAMP),
+                    Arrays.asList(
+                            new ArgumentType.Fixed(new ArrayList<>(Arrays.asList(DataFusionDataType.STRING))),
+                            new ArgumentType.Fixed(new ArrayList<>(Arrays.asList(DataFusionDataType.STRING)))));
+        case FUNC_TO_TIMESTAMP_NANOS1:
+            return new DataFusionBaseExpr("TO_TIMESTAMP_NANOS", 1, DataFusionBaseExprCategory.FUNC,
+                    Arrays.asList(DataFusionDataType.TIMESTAMP),
+                    Arrays.asList(new ArgumentType.Fixed(new ArrayList<>(
+                            Arrays.asList(DataFusionDataType.STRING, DataFusionDataType.BIGINT)))));
+        case FUNC_TO_TIMESTAMP_NANOS2:
+            return new DataFusionBaseExpr("TO_TIMESTAMP_NANOS", 2, DataFusionBaseExprCategory.FUNC,
+                    Arrays.asList(DataFusionDataType.TIMESTAMP),
+                    Arrays.asList(
+                            new ArgumentType.Fixed(new ArrayList<>(Arrays.asList(DataFusionDataType.STRING))),
+                            new ArgumentType.Fixed(new ArrayList<>(Arrays.asList(DataFusionDataType.STRING)))));
+        case FUNC_FROM_UNIXTIME:
+            return new DataFusionBaseExpr("FROM_UNIXTIME", 1, DataFusionBaseExprCategory.FUNC,
+                    Arrays.asList(DataFusionDataType.TIMESTAMP),
+                    Arrays.asList(new ArgumentType.Fixed(new ArrayList<>(Arrays.asList(DataFusionDataType.BIGINT)))));
+
+        // Date/Time Functions - Extraction & Manipulation
+        case FUNC_DATE_PART:
+            return new DataFusionBaseExpr("DATE_PART", 2, DataFusionBaseExprCategory.FUNC,
+                    Arrays.asList(DataFusionDataType.BIGINT),
+                    Arrays.asList(
+                            new ArgumentType.Fixed(new ArrayList<>(Arrays.asList(DataFusionDataType.STRING))),
+                            new ArgumentType.Fixed(new ArrayList<>(
+                                    Arrays.asList(DataFusionDataType.TIMESTAMP, DataFusionDataType.DATE)))));
+        case FUNC_DATE_TRUNC:
+            return new DataFusionBaseExpr("DATE_TRUNC", 2, DataFusionBaseExprCategory.FUNC,
+                    Arrays.asList(DataFusionDataType.TIMESTAMP),
+                    Arrays.asList(
+                            new ArgumentType.Fixed(new ArrayList<>(Arrays.asList(DataFusionDataType.STRING))),
+                            new ArgumentType.Fixed(new ArrayList<>(Arrays.asList(DataFusionDataType.TIMESTAMP)))));
+        case FUNC_DATE_BIN:
+            return new DataFusionBaseExpr("DATE_BIN", 3, DataFusionBaseExprCategory.FUNC,
+                    Arrays.asList(DataFusionDataType.TIMESTAMP),
+                    Arrays.asList(
+                            new ArgumentType.Fixed(new ArrayList<>(Arrays.asList(DataFusionDataType.STRING))),
+                            new ArgumentType.Fixed(new ArrayList<>(Arrays.asList(DataFusionDataType.TIMESTAMP))),
+                            new ArgumentType.Fixed(new ArrayList<>(Arrays.asList(DataFusionDataType.TIMESTAMP)))));
+        case FUNC_TO_CHAR:
+            return new DataFusionBaseExpr("TO_CHAR", 2, DataFusionBaseExprCategory.FUNC,
+                    Arrays.asList(DataFusionDataType.STRING),
+                    Arrays.asList(
+                            new ArgumentType.Fixed(new ArrayList<>(
+                                    Arrays.asList(DataFusionDataType.TIMESTAMP, DataFusionDataType.DATE, DataFusionDataType.TIME))),
+                            new ArgumentType.Fixed(new ArrayList<>(Arrays.asList(DataFusionDataType.STRING)))));
+
         case AGGR_MIN:
             return DataFusionBaseExpr.createCommonNumericAggrFuncSingleArg("MIN");
         case AGGR_MAX:
@@ -795,6 +929,12 @@ public final class DataFusionBaseExprFactory {
         DataFusionDataType filterType = dataTypeOptional.get();
         List<DataFusionBaseExpr> exprsWithReturnType = allExpressions.stream()
                 .filter(expr -> expr.possibleReturnTypes.contains(filterType)).collect(Collectors.toList());
+
+        // For temporal types, we need to keep FUNC expressions since they're the only way to generate
+        // temporal values (we don't have temporal operators yet)
+        if (filterType.isTemporal()) {
+            return exprsWithReturnType;
+        }
 
         if (Randomly.getBoolean()) {
             // Too many similar function, so test them less often

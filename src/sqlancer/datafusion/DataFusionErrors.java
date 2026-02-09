@@ -47,6 +47,10 @@ public final class DataFusionErrors {
         errors.add("This feature is not implemented: Percentile value for 'APPROX_PERCENTILE_CONT' must be a literal");
         errors.add(
                 "This feature is not implemented: Tdigest max_size value for 'APPROX_PERCENTILE_CONT' must be a literal");
+        errors.add("Error parsing timestamp");
+        errors.add("Unable to cast to Date32 for converting from i64 to i32");
+        errors.add("Invalid input syntax for type interval");
+        errors.add("This feature is not implemented: DATE_BIN only supports literal values for the origin argument, not arrays");
 
         /*
          * Known bugs

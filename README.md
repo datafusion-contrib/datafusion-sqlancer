@@ -95,7 +95,7 @@ Notes for query generation:
 - String scalar functions/expression operators
 - Aggregate functions, `HAVING` clause
 - Window functions
-- (TODO) Time related data type functions
+- Time-related data type functions
 - (TODO) Subquery
 - (TODO) Queries from parquet, csv
 - (TODO) Exploit different configurations (change config knobs like `target_partition`, `prefer_hash_join` etc.
@@ -104,7 +104,7 @@ Note: most oracles only apply to a subset of available query types, for advanced
 More context for below test oracles at https://github.com/sqlancer/sqlancer/tree/main
 - NoREC 
 - TLP 
-- (TODO) PQS
+- PQS
 - (TODO) DQP for logical bugs in joins
 - (TODO) [EET](https://www.usenix.org/conference/osdi24/presentation/jiang#:~:text=To%20find%20logic%20bugs%20in,is%20independent%20of%20query%20patterns.) for logic bugs in joins and subqueries
 # Bug Report
